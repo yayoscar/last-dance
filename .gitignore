@@ -25,3 +25,4 @@ build/
 # Migraciones de Alembic
 alembic/versions/*.pyc
 alembic/versions/*.py~
+.venv
