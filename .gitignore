@@ -1,0 +1,27 @@
+# Ignorar el entorno virtual
+venv/
+.env
+
+# Archivos de caché de Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Archivos de logs y bases de datos locales
+*.log
+*.sqlite3
+*.db
+
+# Configuración específica de IDEs
+.vscode/
+.idea/
+*.iml
+
+# Archivos generados por herramientas de compilación
+dist/
+build/
+*.egg-info/
+
+# Migraciones de Alembic
+alembic/versions/*.pyc
+alembic/versions/*.py~
