@@ -1,6 +1,19 @@
 # last-dance
 Sistema de Reportes de Calificaciones de Control Escolar SISEEMS
 
+
+# Instalar Dependencias de Librerías
+pip install -r requirements.txt
+
+
+# Ejecutar Migraciones
+alembic upgrade head
+
+# Ejecutar Servidor API
+python -m app.main
+
+
+
 Documentos de Apoyo
 https://drive.google.com/drive/folders/1jKSzODhhK1Oi4KV_Opf8rkMe3u5NAjJs?usp=sharing
 
