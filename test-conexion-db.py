@@ -6,11 +6,11 @@ import psycopg2
 # Cargar variables de entorno
 load_dotenv()
 
-DB = os.getenv("DB")
-USER=os.getenv("USER")
-PWD=os.getenv("PWD")
-HOST=os.getenv("HOST")
-PORT=os.getenv("PORT")
+DB = os.getenv("PG_DB")
+USER=os.getenv("PG_USER")
+PWD=os.getenv("PG_PASSWORD")
+HOST=os.getenv("PG_HOST")
+PORT=os.getenv("PG_PORT")
 
 try:
     print(f"Conectando a: {DB}")

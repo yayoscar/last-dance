@@ -10,7 +10,7 @@ class Alumno(Base):
     ape_paterno: Mapped[str] = mapped_column(String(255), nullable=False)
     ape_materno: Mapped[str] = mapped_column(String(255), nullable=False)
     num_control: Mapped[int] = mapped_column(Integer, nullable=False)
-    curp: Mapped[str] = mapped_column(String(255), nullable=False)
+    curp: Mapped[str] = mapped_column(String(18), nullable=False)
     id_carrera: Mapped[int] = mapped_column(ForeignKey("carreras.id_carrera"), nullable=False)
     turno: Mapped[str] = mapped_column(String(255), nullable=False)
     local: Mapped[bool] = mapped_column(Boolean, nullable=False)

@@ -1,10 +1,17 @@
 # last-dance
 Sistema de Reportes de Calificaciones de Control Escolar SISEEMS
 
+# Crear Correr Primero el Entorno Virtual
+python -m venv .venv
+.venv\Scripts\activate
+
 
 # Instalar Dependencias de Librerías
 pip install -r requirements.txt
 
+# Crear el archivo .env (Variables de Entorno)
+hacer una copia .env.local
+renombrarla como .env
 
 # Ejecutar Migraciones
 alembic upgrade head
