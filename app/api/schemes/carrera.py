@@ -4,13 +4,19 @@ from pydantic import BaseModel, ConfigDict, Field
 
 # from app.api.schemes.alumno import AlumnoBase
 
-class CarreraSchema(BaseModel):
-    id_carrera: Optional[int] = Field(None, exclude=True)
+class CarreraBase(BaseModel):
     nombre: str
-    # alumnos: Optional[List[AlumnoBase]] = None
+
+class CarreraCrear(CarreraBase):
+    pass
+
+class CarreraResponse(CarreraBase):
+    id_carrera: int
+
     model_config = ConfigDict(from_attributes=True)
-
-
+    
+class CarreraEditar(CarreraBase):
+    id_carrera: int
 
 
 
