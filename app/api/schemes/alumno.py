@@ -1,6 +1,9 @@
-#Crea un esquema pyndatic para el modelo Alumno
-from pydantic import BaseModel
+from __future__ import annotations
 from typing import Optional
+from pydantic import BaseModel, ConfigDict
+
+from app.api.schemes.carrera import CarreraSchema
+
 
 class AlumnoBase(BaseModel):
     nombre: str
@@ -8,13 +11,15 @@ class AlumnoBase(BaseModel):
     ape_materno: str
     num_control: str
     curp: str
+    id_carrera: int
     turno: str
-    local: str
-    generacion: str
+    generacion: int
 
-class AlumnoCreate(AlumnoBase):
-    pass    
+class AlumnoCrear(BaseModel):
+    pass
 
-class AlumnaEdit(AlumnoBase):
+class AlumnoResponse(AlumnoBase):
     id_alumno: int
+    carrera: Optional[CarreraSchema] = None 
 
+    model_config = ConfigDict(from_attributes=True)

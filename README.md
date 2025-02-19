@@ -12,6 +12,7 @@ pip install -r requirements.txt
 # Crear el archivo .env (Variables de Entorno)
 hacer una copia .env.local
 renombrarla como .env
+pasar los datos de su BD
 
 # Ejecutar Migraciones
 alembic upgrade head

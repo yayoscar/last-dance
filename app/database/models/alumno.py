@@ -1,6 +1,7 @@
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.database.db import Base
 from sqlalchemy import String, Boolean, BigInteger, ForeignKey, Integer
+
 
 class Alumno(Base):
     __tablename__ = "alumnos"
@@ -9,9 +10,11 @@ class Alumno(Base):
     nombre: Mapped[str] = mapped_column(String(255), nullable=False)
     ape_paterno: Mapped[str] = mapped_column(String(255), nullable=False)
     ape_materno: Mapped[str] = mapped_column(String(255), nullable=False)
-    num_control: Mapped[int] = mapped_column(Integer, nullable=False)
+    num_control: Mapped[str] = mapped_column(String, nullable=False)
     curp: Mapped[str] = mapped_column(String(18), nullable=False)
     id_carrera: Mapped[int] = mapped_column(ForeignKey("carreras.id_carrera"), nullable=False)
     turno: Mapped[str] = mapped_column(String(255), nullable=False)
-    local: Mapped[bool] = mapped_column(Boolean, nullable=False)
     generacion: Mapped[int] = mapped_column(BigInteger, nullable=False)
+
+    # Relación con la tabla Carrera
+    carrera: Mapped["Carrera"] = relationship("Carrera", back_populates="alumnos") #type: ignore
