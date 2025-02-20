@@ -21,6 +21,12 @@ def obtener_carreras(db: Session = Depends(get_db_session)):
     return db.query(Carrera).all()
 
 #GET /{id_carrera}
+@router.get("/{id}", response_model=CarreraResponse)
+def obtener_item(id: int,db: Session = Depends(get_db_session)):
+    carrera = db.query(Carrera).filter_by(id_carrera=id).first()
+    return carrera
+
+    
 
 #PATCH /{id_carrera}
 
