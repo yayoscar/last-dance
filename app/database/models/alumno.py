@@ -16,5 +16,6 @@ class Alumno(Base):
     turno: Mapped[str] = mapped_column(String(255), nullable=False)
     generacion: Mapped[int] = mapped_column(BigInteger, nullable=False)
 
-    # Relación con la tabla Carrera
+    # Relaciones
     carrera: Mapped["Carrera"] = relationship("Carrera", back_populates="alumnos") #type: ignore
+    grupo_alumnos: Mapped["Grupo_Alumnos"] = relationship("Grupo_alumnos", back_populates="alumnos") #type: ignore
