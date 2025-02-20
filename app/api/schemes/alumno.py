@@ -2,7 +2,8 @@ from __future__ import annotations
 from typing import Optional
 from pydantic import BaseModel, ConfigDict
 
-from app.api.schemes.carrera import CarreraSchema
+from app.api.schemes.carrera import CarreraResponse
+
 
 
 class AlumnoBase(BaseModel):
@@ -20,6 +21,6 @@ class AlumnoCrear(BaseModel):
 
 class AlumnoResponse(AlumnoBase):
     id_alumno: int
-    carrera: Optional[CarreraSchema] = None 
+    carrera: Optional[CarreraResponse] = None 
 
     model_config = ConfigDict(from_attributes=True)
