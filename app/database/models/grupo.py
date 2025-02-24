@@ -10,3 +10,7 @@ class Grupo(Base):
     tipo: Mapped[str] = mapped_column(String(255), nullable=False)
     turno: Mapped[str] = mapped_column(String(255), nullable=False)
     nombre: Mapped[str] = mapped_column(String(255), nullable=False)
+
+    # Relaciones 
+    periodo: Mapped["Periodo"] = relationship("Periodo", back_populates="grupos") #type: ignore
+    grupo_alumnos: Mapped[list["GrupoAlumno"]] = relationship("GrupoAlumno", back_populates="grupo") #type: ignore

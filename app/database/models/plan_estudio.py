@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.database.db import Base
 from sqlalchemy import String
 
@@ -7,3 +7,6 @@ class PlanEstudio(Base):
 
     id_plan_estudio: Mapped[int] = mapped_column(primary_key=True)
     nombre: Mapped[str] = mapped_column(String(255), nullable=False)
+
+    # Relaciones
+    plan_estudio_materias: Mapped[list["PlanEstudioMateria"]] = relationship("PlanEstudioMateria", back_populates="plan_estudio") #type: ignore
