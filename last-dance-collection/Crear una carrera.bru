@@ -1,11 +1,17 @@
 meta {
   name: Crear una carrera
   type: http
-  seq: 3
+  seq: 2
 }
 
 post {
-  url: 
-  body: none
+  url: http://localhost:3200/api/v1/carreras
+  body: json
   auth: none
+}
+
+body:json {
+  {  
+    "nombre": "Ciencia de Datos"
+  }
 }
