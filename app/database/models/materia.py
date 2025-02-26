@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.database.db import Base
 from sqlalchemy import String,Integer
+from app.database.models.plan_estudio_materia import plan_estudio_materias
 
 class Materia(Base):
     __tablename__ = "materias"
@@ -12,4 +13,4 @@ class Materia(Base):
     id_modulo: Mapped[int] = mapped_column(nullable=False)
 
     # Relaciones
-    plan_estudio_materias: Mapped[list["PlanEstudioMateria"]] = relationship("PlanEstudioMateria", back_populates="materia") #type: ignore
+    planes_estudio: Mapped[list["PlanEstudio"]] = relationship(secondary=plan_estudio_materias, back_populates="materias") #type: ignore

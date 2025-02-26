@@ -1,6 +1,8 @@
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.database.db import Base
 from sqlalchemy import String
+from app.database.models.plan_estudio_materia import plan_estudio_materias
+
 
 class PlanEstudio(Base):
     __tablename__ = "planes_estudio"
@@ -9,4 +11,5 @@ class PlanEstudio(Base):
     nombre: Mapped[str] = mapped_column(String(255), nullable=False)
 
     # Relaciones
-    plan_estudio_materias: Mapped[list["PlanEstudioMateria"]] = relationship("PlanEstudioMateria", back_populates="plan_estudio") #type: ignore
+    carreras: Mapped[list["Carrera"]] = relationship("Carrera", back_populates="plan_estudio") #type: ignore
+    materias: Mapped[list["Materia"]] = relationship(secondary=plan_estudio_materias, back_populates="planes_estudio") #type: ignore
