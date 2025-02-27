@@ -24,3 +24,7 @@ class AlumnoResponse(AlumnoBase):
     carrera: Optional[CarreraResponse] = None 
 
     model_config = ConfigDict(from_attributes=True)
+
+class AlumnoEditar(AlumnoBase):
+    id_alumno: int
+    
