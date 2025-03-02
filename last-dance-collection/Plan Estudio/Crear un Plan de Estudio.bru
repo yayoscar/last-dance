@@ -1,0 +1,17 @@
+meta {
+  name: Crear un Plan de Estudio
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://localhost:3200/api/v1/planes_estudio/
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "nombre_plan_estudio": "Recursos Humanos"
+  }
+}

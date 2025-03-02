@@ -6,6 +6,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 class CarreraBase(BaseModel):
     nombre: str
+    id_plan_estudio:int
 
 class CarreraCrear(CarreraBase):
     pass
