@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Maestros y Materias</title>
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(45deg, #ff416c, #ff4b2b, #1b6ca8, #4a00e0);
+      background-size: 400% 400%;
+      animation: gradientBG 10s ease infinite;
+      color: white;
+      text-align: center;
+      margin: 0;
+      padding: 20px;
+    }
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    h2 {
+      font-size: 2em;
+      margin-bottom: 20px;
+    }
+    #chart {
+      max-width: 600px;
+      margin: auto;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+    }
+  </style>
+</head>
+<body>
+  <h2>Relación Maestros - Materias</h2>
+  <div id="chart"></div>
+
+  <script>
+    const maestros = ["Profesor A", "Profesor B", "Profesor C", "Profesor D"];
+    const materias = [5, 3, 4, 2];
+
+    const options = {
+      chart: {
+        type: 'bar',
+        height: 400,
+        animations: {
+          enabled: true,
+          easing: 'easeout',
+          speed: 1000,
+        },
+        background: 'transparent'
+      },
+      series: [{
+        name: 'Número de Materias',
+        data: materias
+      }],
+      colors: ['#FF5733', '#FFC300', '#33FF57', '#338BFF'],
+      plotOptions: {
+        bar: {
+          distributed: true,
+          borderRadius: 5,
+        }
+      },
+      xaxis: {
+        categories: maestros,
+        title: {
+          text: 'Maestros',
+          style: { color: 'white' }
+        },
+        labels: { style: { colors: 'white' } }
+      },
+      yaxis: {
+        title: {
+          text: 'Número de Materias',
+          style: { color: 'white' }
+        },
+        labels: { style: { colors: 'white' } }
+      },
+      title: {
+        text: 'Gráfico de Maestros y Materias',
+        align: 'center',
+        style: { color: 'white' }
+      }
+    };
+
+    const chart = new ApexCharts(document.querySelector("#chart"), options);
+    chart.render();
+  </script>
+</body>
+</html>
