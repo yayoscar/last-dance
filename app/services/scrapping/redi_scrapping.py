@@ -1,5 +1,5 @@
 import xlwings as xw
-file_path="app\services\scrapping\Programación.xlsx"
+file_path="app/services/scrapping/1A-M.xlsx"
 
 def funcion(file):
     wb=xw.Book(file_path)
@@ -24,7 +24,7 @@ def funcion(file):
         fila_b['Num_control']=int(nums_control)
         fila+=1
         num_control.append(fila_b)
-    
+        
     redi['fila_b']=num_control
 
     nombre=[]
@@ -110,7 +110,7 @@ def funcion(file):
         if cont2 is None:
             fila=13
             break
-        fila_g['Cod_obs']=str(cods_obs)
+        fila_h['Cod_obs']=str(cods_obs)
         fila+=1
         cod_obs.append(fila_h)
 

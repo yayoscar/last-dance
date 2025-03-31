@@ -1,34 +1,15 @@
-import xlwings as xw
+import pdfquery
 
-# Ruta del archivo
-file_path="app/services/scrapping/1A-M.xlsx"
+# Cargar el PDF
+pdf = pdfquery.PDFQuery("archivo.pdf")
+pdf.load(4)  # Cargar la página 4
 
-wb=xw.Book(file_path)
-sheet=wb.sheets[0]
+# Extraer todos los elementos de la tabla
+tabla = pdf.extract([
+    ('with_parent', 'LTPage[pageid="4"]'),  # Buscar en la página 4
+    ('tabla', 'LTTextBoxHorizontal')  # Extraer texto de los cuadros horizontales
+])
 
-
-redi = {}
-carrera=sheet['A7'].value.split(':')
-carrera=carrera[-1].strip()
-redi["carrera"]=carrera
-
-semestre=sheet['A8'].value.split(':')
-semestre=semestre[-1].strip()
-redi["semestre"]=semestre
-
-fila = 13
-alumnos=[]
-while True:
-    dict_alumno={}
-    num_control = sheet['B'+str(fila)].value
-    if(num_control is None):
-        break
-    dict_alumno['num_control']=str(num_control)
-    fila+=1
-    alumnos.append(dict_alumno)
-    
-redi['alumnos']=alumnos
-
-wb.close()
-
-print(redi)
+# Mostrar los datos
+for elemento in tabla['tabla']:
+    print(elemento.text)
