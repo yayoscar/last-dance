@@ -1,42 +1,18 @@
 <template>
   <Menubar>
     <template #start>
-  <div class="hidden md:block">
-    <div class="flex flex-row flex-wrap">
-      <div class="w-15rem flex items-center flex-wrap">
-        <!-- Logo como imagen -->
-        <img 
-          src="@\images\logo.jpg" 
-          alt="CBTis72 Logo" 
-          class="h-1 w-2"
-        />
-        <span class="font-semibold text-2xl"style="color: #800020;">CBTis72</span>
+      <div class="flex flex-row flex-wrap">
+        <div class="w-15rem flex items-center flex-wrap">
+          <!-- Logo como imagen -->
+          <img 
+            src="@\images\logo.jpg" 
+            alt="CBTis72 Logo" 
+            class="h-1 w-2"
+          />
+          <span class="font-semibold text-2xl" style="color: #800020;">CBTis72</span>
+        </div>
       </div>
-
-      <div>
-        <Button icon="pi pi-bars" severity="secondary" aria-label="Bookmark" text @click="menuMain = !menuMain" />
-      </div>
-    </div>
-  </div>
-
-  <div class="block md:hidden">
-    <div class="grid">
-      <div class="col-fixed" style="width: 35px">
-        <Button icon="pi pi-bars" severity="secondary" aria-label="Bookmark" text @click="menuMainMobile = !menuMainMobile" />
-      </div>
-
-      <div class="col flex items-center justify-center">
-        <!-- Logo como imagen en móvil -->
-        <img 
-          src="@\images\logo.jpg" 
-          alt="CBTis72 Logo" 
-          class="h-1 w-1 rounded-full"
-        />
-        <span class="font-semibold text-2xl ml-2" style="color: #800020;" >CBTis72</span>
-      </div>
-    </div>
-  </div>
-</template>
+    </template>
 
     <template #end>
       <div class="flex align-items-center gap-2">
@@ -56,39 +32,11 @@
   </Menubar>
 
   <Sidebar v-model:visible="menuMain" :modal="false" :dismissable="false" :baseZIndex="100">
-    <template #container="{ closeCallback }">
+    <template #container>
       <div class="flex flex-column h-full">
         <mainMenu />
       </div>
     </template>
-  </Sidebar>
-
-  <Sidebar v-model:visible="menuMainMobile" :baseZIndex="1001">
-    <template>
-  <Sidebar v-model:visible="menuMainMobile" :baseZIndex="1001">
-    <template #container="{ closeCallback }">
-      <div class="flex flex-column h-full">
-        <div class="flex align-items-center justify-content-between px-4 pt-3 flex-shrink-0">
-          <span class="inline-flex align-items-center gap-2">
-            <!-- Nuevo Logo (cambiar la URL de la imagen según sea necesario) -->
-            <img 
-              src="@\images\logo.jpg" 
-              alt="Nuevo Logo" 
-              class="h-1 w-1 rounded-full object-cover"
-            />
-            <!-- Nuevo nombre de la empresa -->
-            <span class="font-semibold text-2xl" style="color: #800020;">CBTis72</span>
-          </span>
-          <span>
-            <Button type="button" @click="closeCallback" icon="pi pi-times" rounded outlined class="h-2rem w-2rem mt-1"></Button>
-          </span>
-        </div>
-        <mainMenu />
-      </div>
-    </template>
-  </Sidebar>
-</template>
-
   </Sidebar>
 
   <div class="py-6 pr-3 md:pr-6" :class="menuMain ? 'container-main' : 'pl-3 md:pl-6'">
@@ -100,8 +48,7 @@
 import { ref } from "vue";
 
 const menuProfile = ref();
-const menuMain = ref(false);
-const menuMainMobile = ref(false);
+const menuMain = ref(true);
 
 const menuProfileItems = ref([
   {
@@ -120,22 +67,6 @@ const menuProfileItems = ref([
     ],
   },
 ]);
-
-onMounted(() => {
-  if (window.innerWidth < 768) {
-    menuMain.value = false;
-  } else {
-    menuMain.value = true;
-  }
-
-  window.addEventListener("resize", () => {
-    if (window.innerWidth < 768) {
-      menuMain.value = false;
-    } else {
-      menuMain.value = true;
-    }
-  });
-});
 
 const toggleMenuProfile = (event) => {
   menuProfile.value.toggle(event);
@@ -165,14 +96,5 @@ body {
 
 .container-main {
   padding-left: 22.5rem;
-}
-
-@media screen and (max-width: 768px) {
-  .p-menubar {
-    padding: 0.5rem 1rem;
-  }
-  .p-menubar-start {
-    width: 90%;
-  }
 }
 </style>

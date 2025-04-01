@@ -41,174 +41,49 @@
           <li>
             <a
               v-ripple
-              v-styleclass="{
-                selector: '@next',
-                enterClass: 'hidden',
-                enterActiveClass: 'slidedown',
-                leaveToClass: 'hidden',
-                leaveActiveClass: 'slideup'
-              }"
+              @click="toggleCalificacionesMenu"
               class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple"
             >
               <i class="pi pi-chart-line mr-2"></i>
               <span class="font-medium">Calificaciones</span>
               <i class="pi pi-chevron-down ml-auto"></i>
             </a>
-            <ul v-show="calificacionesMenuVisible" class="list-none py-0 pl-3 pr-0 m-0 hidden overflow-y-hidden transition-all transition-duration-400 transition-ease-in-out">
+            <ul v-show="calificacionesMenuVisible" class="list-none py-0 pl-3 pr-0 m-0 overflow-hidden">
               <!-- Ingresar Notas -->
               <li>
-                <a
-                  v-ripple
-                  v-styleclass="{
-                    selector: '@next',
-                    enterClass: 'hidden',
-                    enterActiveClass: 'slidedown',
-                    leaveToClass: 'hidden',
-                    leaveActiveClass: 'slideup'
-                  }"
-                  class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple"
-                >
+                <a v-ripple class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple">
                   <i class="pi pi-pencil mr-2"></i>
                   <span class="font-medium">Ingresar Notas</span>
-                  <i class="pi pi-chevron-down ml-auto"></i>
                 </a>
-                <ul class="list-none py-0 pl-3 pr-0 m-0 hidden overflow-y-hidden transition-all transition-duration-400 transition-ease-in-out">
-                  <li>
-                    <a
-                      v-ripple
-                      class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple"
-                    >
-                      <i class="pi pi-table mr-2"></i>
-                      <span class="font-medium">Ver Reporte</span>
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      v-ripple
-                      class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple"
-                    >
-                      <i class="pi pi-search mr-2"></i>
-                      <span class="font-medium">Buscar Alumno</span>
-                    </a>
-                  </li>
-                </ul>
               </li>
               <!-- Estadísticas -->
               <li>
-                <a
-                  v-ripple
-                  class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple"
-                >
+                <a v-ripple class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple">
                   <i class="pi pi-chart-bar mr-2"></i>
                   <span class="font-medium">Estadísticas</span>
                 </a>
               </li>
             </ul>
           </li>
-          <!-- Estudiantes con submenú -->
-          <li>
-            <a
-              v-ripple
-              v-styleclass="{
-                selector: '@next',
-                enterClass: 'hidden',
-                enterActiveClass: 'slidedown',
-                leaveToClass: 'hidden',
-                leaveActiveClass: 'slideup'
-              }"
-              class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple"
-            >
-              <i class="pi pi-users mr-2"></i>
-              <span class="font-medium">Estudiantes</span>
-              <i class="pi pi-chevron-down ml-auto"></i>
-            </a>
-            <ul class="list-none p-0 m-0 overflow-hidden">
-              <li>
-                <a
-                  v-ripple
-                  class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple"
-                >
-                  <i class="pi pi-check-circle mr-2"></i>
-                  <span class="font-medium">Aprobados</span>
-                </a>
-              </li>
-              <li>
-                <a
-                  v-ripple
-                  class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple"
-                >
-                  <i class="pi pi-times-circle mr-2"></i>
-                  <span class="font-medium">Reprobados</span>
-                </a>
-              </li>
-            </ul>
-          </li>
-          <!-- Notificaciones -->
+          <!-- Materias -->
           <li>
             <a
               v-ripple
               class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple"
             >
-              <i class="pi pi-bell mr-2"></i>
-              <span class="font-medium">Notificaciones</span>
-              <span class="inline-flex align-items-center justify-content-center ml-auto bg-primary border-circle" style="min-width: 1.5rem; height: 1.5rem">3</span>
+              <i class="pi pi-book mr-2"></i>
+              <span class="font-medium">Materias</span>
             </a>
           </li>
-          <!-- Calendario -->
+          <!-- Planes de Estudio -->
           <li>
             <a
               v-ripple
               class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple"
             >
-              <i class="pi pi-calendar mr-2"></i>
-              <span class="font-medium">Calendario</span>
+              <i class="pi pi-file mr-2"></i>
+              <span class="font-medium">Planes de Estudio</span>
             </a>
-          </li>
-          <!-- Configuración -->
-          <li>
-            <a
-              v-ripple
-              class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple"
-            >
-              <i class="pi pi-cog mr-2"></i>
-              <span class="font-medium">Configuración</span>
-            </a>
-          </li>
-          <!--Graficas-->
-          <li>
-            <a
-              v-ripple
-              v-styleclass="{
-                selector: '@next',
-                enterClass: 'hidden',
-                enterActiveClass: 'slidedown',
-                leaveToClass: 'hidden',
-                leaveActiveClass: 'slideup'
-              }"
-              class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple"
-            >
-              <i class="pi pi-users mr-2"></i>
-              <span class="font-medium">Graficas</span>
-              <i class="pi pi-chevron-down ml-auto"></i>
-            </a>
-            <ul class="list-none p-0 m-0 overflow-hidden">
-              <li>
-                <a
-                  v-ripple
-                  class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple"
-                >
-                  <span class="font-medium">Alumno_Maestro</span>
-                </a>
-              </li>
-              <li>
-                <a
-                  v-ripple
-                  class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple"
-                >
-                  <span class="font-medium">NumeroDeAlumnos</span>
-                </a>
-              </li>
-            </ul>
           </li>
         </ul>
       </li>
@@ -228,23 +103,10 @@
 export default {
   data() {
     return {
-      graficaMenuVisible: false, // Controla la visibilidad del submenú
-      graficaVisible: false, // Controla la visibilidad de las gráficas
-      graficaSeleccionada: null, // Guarda la gráfica seleccionada
-      calificacionesMenuVisible: false // Controla la visibilidad del submenú de Calificaciones
+      calificacionesMenuVisible: false,
     };
   },
   methods: {
-    // Mostrar/Ocultar el submenú de Gráficas
-    toggleGraficaMenu() {
-      this.graficaMenuVisible = !this.graficaMenuVisible;
-    },
-    // Cargar la gráfica seleccionada
-    loadGrafica(grafica) {
-      this.graficaSeleccionada = grafica;
-      this.graficaVisible = true; // Hacer visible el iframe
-    },
-    // Mostrar/Ocultar el submenú de Calificaciones
     toggleCalificacionesMenu() {
       this.calificacionesMenuVisible = !this.calificacionesMenuVisible;
     }
