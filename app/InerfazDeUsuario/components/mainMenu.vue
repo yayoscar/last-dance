@@ -20,6 +20,7 @@
           <!-- Inicio -->
           <li>
             <a
+            @click="Inicio"
               v-ripple
               class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple"
             >
@@ -66,9 +67,10 @@
             </ul>
           </li>
           <!-- Materias -->
-          <li>
+                    <li>
             <a
               v-ripple
+              @click="Materia"
               class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple"
             >
               <i class="pi pi-book mr-2"></i>
@@ -100,6 +102,7 @@
 </template>
 
 <script>
+
 export default {
   data() {
     return {
@@ -109,9 +112,16 @@ export default {
   methods: {
     toggleCalificacionesMenu() {
       this.calificacionesMenuVisible = !this.calificacionesMenuVisible;
+    },
+    Materia() {
+      this.$router.push('/Materias');
+    },
+    Inicio() {
+      this.$router.push('/');
+    }
     }
   }
-};
+
 </script>
 
 <style scoped>
