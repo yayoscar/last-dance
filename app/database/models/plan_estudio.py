@@ -13,3 +13,7 @@ class PlanEstudio(Base):
     # Relaciones
     carreras: Mapped[list["Carrera"]] = relationship("Carrera", back_populates="plan_estudio") #type: ignore
     materias: Mapped[list["Materia"]] = relationship(secondary=plan_estudio_materias, back_populates="planes_estudio") #type: ignore
+    planes_estudio: Mapped[list["PlanEstudio"]] = relationship(secondary="plan_estudio_carreras", back_populates="planes_estudio") #type: ignore
+
+
+

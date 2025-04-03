@@ -4,22 +4,16 @@ from pydantic import BaseModel, ConfigDict, Field
 
 # from app.api.schemes.alumno import AlumnoBase
 
-class CarreraBase(BaseModel):
+class MateriaBase(BaseModel):
     nombre: str
-    id_plan_estudio:int
 
-class CarreraCrear(CarreraBase):
+class MateriaCrear(MateriaBase):
     pass
 
-class CarreraResponse(CarreraBase):
-    id_carrera: int
+class MateriaResponse(MateriaBase):
+    id_materia: int
 
     model_config = ConfigDict(from_attributes=True)
     
-class CarreraEditar(CarreraBase):
-    id_carrera: int
-
-
-
-    
-    
+class MateriaEditar(MateriaBase):
+    id_materia: int
