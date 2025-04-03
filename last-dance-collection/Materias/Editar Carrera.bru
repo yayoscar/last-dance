@@ -1,0 +1,18 @@
+meta {
+  name: Editar Carrera
+  type: http
+  seq: 4
+}
+
+patch {
+  url: http://localhost:3200/api/v1/carreras/4
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "id_carrera":4,
+    "nombre": "Informática"
+  }
+}
