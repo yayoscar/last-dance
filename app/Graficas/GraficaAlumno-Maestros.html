@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gráfico Animado de Maestros y Materias</title>
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+  <style>
+    /* Fondo animado con colores en degradado */
+    @keyframes cambioColor {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    body {
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(45deg, #ff5733, #33ff57, #337bff, #f7c633);
+      background-size: 400% 400%;
+      animation: cambioColor 10s infinite alternate ease-in-out;
+      color: white;
+      text-align: center;
+      padding: 20px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    /* Contenedor del gráfico con sombra y bordes suaves */
+    .chart-container {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 15px;
+      box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
+      padding: 20px;
+      max-width: 600px;
+      margin: auto;
+    }
+
+    /* Título con sombra para mejor visibilidad */
+    h2 {
+      text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+      font-size: 24px;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>📊 Relación Maestros - Materias</h2>
+  <div class="chart-container">
+    <div id="chart"></div>
+  </div>
+
+  <script>
+    // Datos de ejemplo
+    const maestros = ["Profesor A", "Profesor B", "Profesor C", "Profesor D"];
+    const materias = [5, 3, 4, 2];
+
+    // Configuración del gráfico
+    const options = {
+      chart: {
+        type: 'bar',
+        height: 400,
+        background: 'transparent'
+      },
+      series: [{
+        name: 'Número de Materias',
+        data: materias
+      }],
+      colors: ["#FF5733", "#33FF57", "#337BFF", "#F7C633"], 
+      plotOptions: {
+        bar: {
+          distributed: true,
+          borderRadius: 10, 
+        }
+      },
+      xaxis: {
+        categories: maestros,
+        title: {
+          text: 'Maestros'
+        },
+        labels: {
+          style: { colors: "#fff" }
+        }
+      },
+      yaxis: {
+        title: {
+          text: 'Número de Materias'
+        },
+        labels: {
+          style: { colors: "#fff" }
+        }
+      },
+      title: {
+        text: '📚 Gráfico Interactivo',
+        align: 'center',
+        style: {
+          color: "#fff",
+          fontSize: '18px'
+        }
+      },
+      tooltip: {
+        theme: "dark",
+        y: {
+          formatter: function(value) {
+            return `${value} materias`;
+          }
+        }
+      }
+    };
+
+    // Renderizar el gráfico
+    const chart = new ApexCharts(document.querySelector("#chart"), options);
+    chart.render();
+  </script>
+
+</body>
+</html>
