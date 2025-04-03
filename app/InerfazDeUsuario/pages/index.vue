@@ -1,7 +1,7 @@
 <template>
   <div class="grid">
     <!-- Tarjeta 1: Evaluaciones -->
-    <div class="col-12 md:col-6 lg:col-3">
+    <div class="lg:col-3">
       <div class="surface-card shadow-2 p-3 border-round">
         <div class="flex justify-content-between mb-3">
           <div>
@@ -17,7 +17,7 @@
       </div>
     </div>
     <!-- Tarjeta 2: Promedio -->
-    <div class="col-12 md:col-6 lg:col-3">
+    <div class="lg:col-3">
       <div class="surface-card shadow-2 p-3 border-round">
         <div class="flex justify-content-between mb-3">
           <div>
@@ -33,7 +33,7 @@
       </div>
     </div>
     <!-- Tarjeta 3: Estudiantes Inscritos -->
-    <div class="col-12 md:col-6 lg:col-3">
+    <div class="lg:col-3">
       <div class="surface-card shadow-2 p-3 border-round">
         <div class="flex justify-content-between mb-3">
           <div>
@@ -49,7 +49,7 @@
       </div>
     </div>
     <!-- Tarjeta 4: Comentarios -->
-    <div class="col-12 md:col-6 lg:col-3">
+    <div class="lg:col-3">
       <div class="surface-card shadow-2 p-3 border-round">
         <div class="flex justify-content-between mb-3">
           <div>
