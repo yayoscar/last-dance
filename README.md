@@ -21,6 +21,19 @@ alembic upgrade head
 python -m app.main
 
 
+# Instalar Librerias de FronEnd (Una vez y cuando se informe que hay nuevos paquetes)
+
+## ir al directorio del frontend
+cd frontend
+
+## requiere instalar nodejs
+https://nodejs.org/en
+
+## Instalar las dependencias
+npm install
+
+## Ejecutar el servidor de desarrollo
+npm run dev
 
 Documentos de Apoyo
 https://drive.google.com/drive/folders/1jKSzODhhK1Oi4KV_Opf8rkMe3u5NAjJs?usp=sharing
