@@ -1,15 +1,26 @@
-import pdfquery
+import requests
+from bs4 import BeautifulSoup
 
-# Cargar el PDF
-pdf = pdfquery.PDFQuery("archivo.pdf")
-pdf.load(4)  # Cargar la página 4
+url='http://127.0.0.1:5500/app/services/scrapping/SISEEMS%20-%20Acreditaci%C3%B3n.html'
+page=requests.get(url)
+soup=BeautifulSoup(page.text,'html.parser')
 
-# Extraer todos los elementos de la tabla
-tabla = pdf.extract([
-    ('with_parent', 'LTPage[pageid="4"]'),  # Buscar en la página 4
-    ('tabla', 'LTTextBoxHorizontal')  # Extraer texto de los cuadros horizontales
-])
+seccion=soup.find('div',id='ctl0_Main_panelAlumnos')
+tabla=seccion.find('table')
+encabezados=[
+    "NO","NO CONTROL","NOMBRE",
+    "PARCIAL_1","PARCIAL_2","PARCIAL_3",
+    "ASISTENCIA_1","ASISTENCIA_2","ASISTENCIA_3",
+    "PROMEDIO","ASISTENCIAS","T. A.","FIRMADO"]
+datos=[]
+filas=tabla.find_all('tr')[1:]
 
-# Mostrar los datos
-for elemento in tabla['tabla']:
-    print(elemento.text)
+
+for fila in filas:
+    celdas=fila.find_all('td')
+    valores=[celda.text.strip() for celda in celdas]
+    if valores:
+        fila_dict=dict(zip(encabezados,valores))
+        datos.append(fila_dict)
+for fila in datos:
+    print(fila)
