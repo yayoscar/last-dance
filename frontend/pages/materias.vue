@@ -1,112 +1,181 @@
 <template>
-    <div class="p-5">
-      <h1 class="text-2xl font-bold mb-4">Materias</h1>
-      
-      <table class="w-full border-collapse border border-gray-300">
-        <thead>
-          <tr class="bg-gray-200">
-            <th class="border border-gray-300 p-2">ID</th>
-            <th class="border border-gray-300 p-2">Nombre</th>
-            <th class="border border-gray-300 p-2">Tipo</th>
-            <th class="border border-gray-300 p-2">Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="materia in materias" :key="materia.id" class="text-center">
-            <td class="border border-gray-300 p-2">{{ materia.id }}</td>
-            <td class="border border-gray-300 p-2">{{ materia.nombre }}</td>
-            <td class="border border-gray-300 p-2">{{ materia.tipo }}</td>
-            <td class="border border-gray-300 p-2">
-              <!-- Botón Eliminar con icono y estilo más visible -->
-              <button 
-                class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 focus:outline-none"
-                @click="eliminarMateria(materia.id)"
-              >
-                <i class="pi pi-trash"></i> Eliminar
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      
-      <button 
-        class="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
-        @click="mostrarModal = true"
+  <div>
+    <div class="card">
+      <Toolbar class="mb-6">
+        <template #start>
+          <Button label="Nuevo" icon="pi pi-plus" class="mr-2" @click="openNew" />
+          <Button label="Eliminar" icon="pi pi-trash" severity="danger" outlined @click="confirmDeleteSelected" :disabled="!selectedProducts || !selectedProducts.length" />
+        </template>
+      </Toolbar>
+
+      <DataTable
+        ref="dt"
+        v-model:selection="selectedProducts"
+        :value="products"
+        dataKey="id"
+        :paginator="true"
+        :rows="5"
+        :filters="filters"
+        paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"
       >
-        Agregar Materia
-      </button>
-  
-      <!-- Modal para agregar materia -->
-      <div v-if="mostrarModal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
-        <div class="bg-white p-5 rounded shadow-lg w-96">
-          <h2 class="text-xl font-bold mb-4">Nueva Materia</h2>
-          
-          <label class="block mb-2">Nombre:</label>
-          <input v-model="nuevaMateria.nombre" type="text" class="w-full border p-2 rounded mb-4" />
-          
-          <label class="block mb-2">Tipo:</label>
-          <select v-model="nuevaMateria.tipo" class="w-full border p-2 rounded mb-4">
-            <option value="materia">Materia</option>
-            <option value="submodulo">Submódulo</option>
-          </select>
-          
-          <div class="flex justify-end gap-2">
-            <button @click="mostrarModal = false" class="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500">Cancelar</button>
-            <button @click="agregarMateria" class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">Agregar</button>
+        <template #header>
+          <div class="flex justify-end">
+            <IconField>
+              <InputIcon><i class="pi pi-search" /></InputIcon>
+              <InputText v-model="filters['global'].value" placeholder="Buscar..." />
+            </IconField>
           </div>
-        </div>
-      </div>
+        </template>
+
+        <Column selectionMode="multiple" style="width: 3rem" :exportable="false" />
+        <Column field="codigo" header="Código" sortable style="min-width: 12rem" />
+        <Column field="nombre" header="Nombre" sortable style="min-width: 16rem" />
+        <Column field="creditos" header="Créditos" sortable style="min-width: 8rem" />
+        <Column field="tipo.name" header="Tipo" sortable style="min-width: 12rem" />
+        <Column header="Acciones" style="min-width: 8rem">
+          <template #body="slotProps">
+            <Button icon="pi pi-pencil" rounded text @click="editProduct(slotProps.data)" />
+          </template>
+        </Column>
+      </DataTable>
     </div>
+
+    <!-- Diálogo de nuevo/editar producto -->
+    <Dialog v-model:visible="productDialog" :style="{ width: '450px' }" :header="dialogTitle" :modal="true" class="p-fluid">
+  <div class="p-4 space-y-4">
+    <!-- Nombre -->
+    <div>
+      <label for="nombre" class="block font-semibold mb-1">Nombre</label>
+      <InputText id="nombre" v-model.trim="product.nombre" required autofocus class="w-full" />
+    </div>
+
+    <!-- Créditos -->
+    <div>
+      <label for="creditos" class="block font-semibold mb-1">Créditos</label>
+      <InputNumber id="creditos" v-model="product.creditos" inputId="integeronly" class="w-full" />
+    </div>
+
+    <!-- Tipo -->
+    <div>
+      <label for="tipo" class="block font-semibold mb-1">Tipo</label>
+      <Dropdown v-model="product.tipo" :options="tipos" optionLabel="name" placeholder="Selecciona un tipo" class="w-full" />
+    </div>
+  </div>
+
+  <template #footer>
+    <Button label="Cancelar" icon="pi pi-times" text @click="hideDialog" />
+    <Button label="Guardar" icon="pi pi-check" @click="saveProduct" />
   </template>
-  
-  <script>
-  export default {
-    data() {
-      return {
-        materias: [
-          { id: 1, nombre: "Matemáticas", tipo: "Materia" },
-          { id: 2, nombre: "Física", tipo: "Materia" },
-          { id: 3, nombre: "Química", tipo: "Materia" }
-        ],
-        mostrarModal: false,
-        nuevaMateria: {
-          nombre: "",
-          tipo: "materia"
+</Dialog>
+
+
+    <!-- Diálogo de confirmación para eliminar -->
+    <Dialog v-model:visible="deleteProductsDialog" :style="{ width: '450px' }" header="Confirmar" :modal="true">
+      <div class="flex items-center gap-4">
+        <i class="pi pi-exclamation-triangle !text-3xl" />
+        <span>¿Estás seguro de que deseas eliminar la materia seleccionada?</span>
+      </div>
+      <template #footer>
+        <Button label="No" icon="pi pi-times" text @click="deleteProductsDialog = false" />
+        <Button label="Sí" icon="pi pi-check" @click="deleteSelectedProducts" />
+      </template>
+    </Dialog>
+  </div>
+</template>
+
+<script>
+import { FilterMatchMode } from '@primevue/core/api';
+
+export default {
+  data() {
+    return {
+      products: [],
+      productDialog: false,
+      deleteProductsDialog: false,
+      product: {
+        nombre: '',
+        creditos: null,
+        tipo: null
+      },
+      isEdit: false,
+      selectedProducts: null,
+      filters: {},
+      tipos: [
+        { name: 'Materia', code: 'M' },
+        { name: 'Módulo', code: 'MO' }
+      ]
+    };
+  },
+  computed: {
+    dialogTitle() {
+      return this.isEdit ? 'Editar Materia' : 'Nueva Materia';
+    }
+  },
+  created() {
+    this.initFilters();
+    this.loadSampleData();
+  },
+  methods: {
+    openNew() {
+      this.product = { nombre: '', creditos: null, tipo: null };
+      this.isEdit = false;
+      this.productDialog = true;
+    },
+    editProduct(producto) {
+      this.product = { ...producto }; // Clonar para no modificar directo
+      this.isEdit = true;
+      this.productDialog = true;
+    },
+    hideDialog() {
+      this.productDialog = false;
+    },
+    saveProduct() {
+      if (this.product.nombre && this.product.creditos && this.product.tipo) {
+        if (this.isEdit) {
+          const index = this.products.findIndex(p => p.id === this.product.id);
+          this.products[index] = { ...this.product };
+        } else {
+          const newProduct = {
+            ...this.product,
+            id: this.createId(),
+            codigo: this.createId()
+          };
+          this.products.push(newProduct);
         }
+        this.productDialog = false;
+        this.product = { nombre: '', creditos: null, tipo: null };
+        this.isEdit = false;
+      } else {
+        alert('Por favor llena todos los campos.');
+      }
+    },
+    confirmDeleteSelected() {
+      this.deleteProductsDialog = true;
+    },
+    deleteSelectedProducts() {
+      this.products = this.products.filter(p => !this.selectedProducts.includes(p));
+      this.selectedProducts = null;
+      this.deleteProductsDialog = false;
+    },
+    createId() {
+      let id = '';
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+      for (let i = 0; i < 5; i++) {
+        id += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return id;
+    },
+    initFilters() {
+      this.filters = {
+        global: { value: null, matchMode: FilterMatchMode.CONTAINS }
       };
     },
-    methods: {
-      agregarMateria() {
-        if (this.nuevaMateria.nombre.trim() === "") return;
-        
-        const nueva = {
-          id: this.materias.length + 1,
-          nombre: this.nuevaMateria.nombre,
-          tipo: this.nuevaMateria.tipo
-        };
-        
-        this.materias.push(nueva);
-        this.nuevaMateria.nombre = "";
-        this.nuevaMateria.tipo = "materia";
-        this.mostrarModal = false;
-      },
-      eliminarMateria(id) {
-        this.materias = this.materias.filter(materia => materia.id !== id);
-      }
+    loadSampleData() {
+      this.products = [
+        { id: '1', codigo: 'P001', nombre: 'Programación', creditos: 4, tipo: { name: 'Materia' } },
+        { id: '2', codigo: 'P002', nombre: 'Base de Datos', creditos: 3, tipo: { name: 'Módulo' } }
+      ];
     }
-  };
-  </script>
-  
-  <style scoped>
-  /* Estilos para mejorar la visibilidad del botón eliminar */
-  button {
-    font-size: 0.875rem; /* Tamaño de fuente más pequeño */
-    display: flex;
-    align-items: center;
-    gap: 5px;
   }
-  button:hover {
-    background-color: #e11d48; /* Fondo rojo oscuro en hover */
-  }
-  </style>
-  
+};
+</script>

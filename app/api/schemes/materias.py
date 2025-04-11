@@ -6,6 +6,9 @@ from pydantic import BaseModel, ConfigDict, Field
 
 class MateriaBase(BaseModel):
     nombre: str
+    creditos: int
+    tipo: str
+    id_modulo: Optional[int] = None
 
 class MateriaCrear(MateriaBase):
     pass
