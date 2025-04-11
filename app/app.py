@@ -1,4 +1,6 @@
 from fastapi import APIRouter, FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
 from app.api.controllers import carrera, plan_estudio,materias
 from app.api.controllers import alumno
  
@@ -31,6 +33,18 @@ app = FastAPI(title="Sistema de Gestión de Carreras",
         
     ])
 
+origins = [
+    "http://localhost:3000",  # ejemplo: frontend en React
+    "http://127.0.0.1:3000",
+    # Puedes agregar más orígenes aquí
+]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,  # o ["*"] para permitir todos los orígenes (no recomendado en producción)
+    allow_credentials=True,
+    allow_methods=["*"],     # Permite todos los métodos: GET, POST, etc.
+    allow_headers=["*"],     # Permite todos los headers
+)
 
 v1_router = APIRouter(prefix="/api/v1")
 

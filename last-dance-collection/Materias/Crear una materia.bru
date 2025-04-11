@@ -1,0 +1,20 @@
+meta {
+  name: Crear una materia
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://localhost:3200/api/v1/materias
+  body: json
+  auth: none
+}
+
+body:json {
+  {  
+    "nombre": "Probabilidad y estadística",
+    "creditos":8,
+    "tipo":"MCC",
+    "id_modulo":0
+  }
+}
