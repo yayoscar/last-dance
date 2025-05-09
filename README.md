@@ -21,7 +21,7 @@ alembic upgrade head
 python -m app.main
 
 
-# Instalar Librerias de FronEnd (Una vez y cuando se informe que hay nuevos paquetes)
+# Instalar Librerias de FrontEnd (Una vez y cuando se informe que hay nuevos paquetes)
 
 ## ir al directorio del frontend
 cd frontend
