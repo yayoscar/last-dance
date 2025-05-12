@@ -23,6 +23,15 @@
           </li>
           <!-- Cursos -->
           <li>
+            <NuxtLink to="/carreras"
+              v-ripple 
+              class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple">
+              <i class="pi pi-tag mr-2"></i>
+              <span class="font-medium">Carreras</span>
+            </NuxtLink>
+          </li>
+          <!-- Cursos -->
+          <li>
             <a v-ripple
               class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple">
               <i class="pi pi-bookmark mr-2"></i>

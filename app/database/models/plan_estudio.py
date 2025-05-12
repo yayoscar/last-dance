@@ -1,6 +1,7 @@
+from typing import Optional
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.database.db import Base
-from sqlalchemy import String
+from sqlalchemy import ForeignKey, String
 from app.database.models.plan_estudio_materia import plan_estudio_materias
 
 
@@ -11,7 +12,10 @@ class PlanEstudio(Base):
     nombre: Mapped[str] = mapped_column(String(255), nullable=False)
 
     # Relaciones
-    carreras: Mapped[list["Carrera"]] = relationship("Carrera", back_populates="plan_estudio") #type: ignore
+
+    id_carrera: Mapped[Optional[int]] = mapped_column(ForeignKey("carreras.id_carrera"), nullable=True)
+    carrera: Mapped["Carrera"] = relationship("Carrera", back_populates="planes_estudio") #type: ignore
+
     materias: Mapped[list["Materia"]] = relationship(secondary=plan_estudio_materias, back_populates="planes_estudio") #type: ignore
     planes_estudio: Mapped[list["PlanEstudio"]] = relationship(secondary=plan_estudio_materias, back_populates="planes_estudio") #type: ignore
 
