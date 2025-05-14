@@ -13,7 +13,7 @@ class PlanEstudio(Base):
 
     # Relaciones
 
-    id_carrera: Mapped[Optional[int]] = mapped_column(ForeignKey("carreras.id_carrera"), nullable=True)
+    id_carrera: Mapped[int] = mapped_column(ForeignKey("carreras.id_carrera"), nullable=False)
     carrera: Mapped["Carrera"] = relationship("Carrera", back_populates="planes_estudio") #type: ignore
 
     materias: Mapped[list["Materia"]] = relationship(secondary=plan_estudio_materias, back_populates="planes_estudio") #type: ignore
