@@ -12,5 +12,4 @@ class Carrera(Base):
     # Relaciones
     alumnos: Mapped[list["Alumno"]] = relationship("Alumno", back_populates="carrera") #type: ignore
 
-    id_plan_estudio: Mapped[Optional[int]] = mapped_column(ForeignKey("planes_estudio.id_plan_estudio"), nullable=True)
-    plan_estudio: Mapped["PlanEstudio"] = relationship("PlanEstudio", back_populates="carreras") #type: ignore
+    planes_estudio: Mapped[list["PlanEstudio"]] = relationship("PlanEstudio", back_populates="carrera") #type: ignore
