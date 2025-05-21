@@ -3,7 +3,7 @@
     <div class="card">
       <Toolbar class="mb-6">
         <template #start>
-          <Button label="Nuevo" icon="pi pi-plus" class="mr-2" @click="openNew" />
+          <Button label="Nuevo" icon="pi pi-plus" class="mr-2" @click="clickMostrarDialogoCrearMateria" />
           <Button label="Eliminar" icon="pi pi-trash" severity="danger" outlined @click="confirmDeleteSelected" :disabled="!selectedProducts || !selectedProducts.length" />
         </template>
       </Toolbar>
@@ -11,7 +11,7 @@
       <DataTable
         ref="dt"
         v-model:selection="selectedProducts"
-        :value="products"
+        :value="Materias"
         dataKey="id"
         :paginator="true"
         :rows="5"
@@ -20,10 +20,10 @@
       >
         <template #header>
           <div class="flex justify-end">
-            <IconField>
-              <InputIcon><i class="pi pi-search" /></InputIcon>
+            <span class="p-input-icon-left">
+              <i class="pi pi-search" />
               <InputText v-model="filters['global'].value" placeholder="Buscar..." />
-            </IconField>
+            </span>
           </div>
         </template>
 
@@ -41,39 +41,33 @@
     </div>
 
     <!-- Diálogo de nuevo/editar producto -->
-    <Dialog v-model:visible="productDialog" :style="{ width: '450px' }" :header="dialogTitle" :modal="true" class="p-fluid">
-  <div class="p-4 space-y-4">
-    <!-- Nombre -->
-    <div>
-      <label for="nombre" class="block font-semibold mb-1">Nombre</label>
-      <InputText id="nombre" v-model.trim="product.nombre" required autofocus class="w-full" />
-    </div>
+    <Dialog v-model:visible="showDialogCrearMateria" :style="{ width: '450px' }" header="Nuevo Producto" :modal="true" class="p-fluid">
+      <div class="p-4 space-y-4">
+        <div>
+          <label for="nombre" class="block font-semibold mb-1">Nombre</label>
+          <InputText id="nombre" v-model.trim="modelMateria.nombre" required autofocus class="w-full" />
+        </div>
+        <div>
+          <label for="creditos" class="block font-semibold mb-1">Créditos</label>
+          <InputNumber id="creditos" v-model="modelMateria.creditos" inputId="integeronly" class="w-full" />
+        </div>
+        <div>
+          <label for="tipo" class="block font-semibold mb-1">Tipo</label>
+          <Dropdown v-model="modelMateria.tipo" :options="tipos" optionLabel="name" placeholder="Selecciona un tipo" class="w-full" />
+        </div>
+      </div>
 
-    <!-- Créditos -->
-    <div>
-      <label for="creditos" class="block font-semibold mb-1">Créditos</label>
-      <InputNumber id="creditos" v-model="product.creditos" inputId="integeronly" class="w-full" />
-    </div>
-
-    <!-- Tipo -->
-    <div>
-      <label for="tipo" class="block font-semibold mb-1">Tipo</label>
-      <Dropdown v-model="product.tipo" :options="tipos" optionLabel="name" placeholder="Selecciona un tipo" class="w-full" />
-    </div>
-  </div>
-
-  <template #footer>
-    <Button label="Cancelar" icon="pi pi-times" text @click="hideDialog" />
-    <Button label="Guardar" icon="pi pi-check" @click="saveProduct" />
-  </template>
-</Dialog>
-
+      <template #footer>
+        <Button label="Cancelar" icon="pi pi-times" text @click="hideDialog" />
+        <Button label="Guardar" icon="pi pi-check" @click="clickAgregarMateria" />
+      </template>
+    </Dialog>
 
     <!-- Diálogo de confirmación para eliminar -->
     <Dialog v-model:visible="deleteProductsDialog" :style="{ width: '450px' }" header="Confirmar" :modal="true">
       <div class="flex items-center gap-4">
         <i class="pi pi-exclamation-triangle !text-3xl" />
-        <span>¿Estás seguro de que deseas eliminar la materia seleccionada?</span>
+        <span>¿Estás seguro de que deseas eliminar las materias seleccionadas?</span>
       </div>
       <template #footer>
         <Button label="No" icon="pi pi-times" text @click="deleteProductsDialog = false" />
@@ -83,99 +77,79 @@
   </div>
 </template>
 
-<script>
-import { FilterMatchMode } from '@primevue/core/api';
+<script setup lang="ts">
+import { ref, onMounted } from "vue";
+import axiosInstance from "~/utils/axiosConfig";
 
-export default {
-  data() {
-    return {
-      products: [],
-      productDialog: false,
-      deleteProductsDialog: false,
-      product: {
-        nombre: '',
-        creditos: null,
-        tipo: null
-      },
-      isEdit: false,
-      selectedProducts: null,
-      filters: {},
-      tipos: [
-        { name: 'Materia', code: 'M' },
-        { name: 'Módulo', code: 'MO' }
-      ]
-    };
-  },
-  computed: {
-    dialogTitle() {
-      return this.isEdit ? 'Editar Materia' : 'Nueva Materia';
-    }
-  },
-  created() {
-    this.initFilters();
-    this.loadSampleData();
-  },
-  methods: {
-    openNew() {
-      this.product = { nombre: '', creditos: null, tipo: null };
-      this.isEdit = false;
-      this.productDialog = true;
-    },
-    editProduct(producto) {
-      this.product = { ...producto }; // Clonar para no modificar directo
-      this.isEdit = true;
-      this.productDialog = true;
-    },
-    hideDialog() {
-      this.productDialog = false;
-    },
-    saveProduct() {
-      if (this.product.nombre && this.product.creditos && this.product.tipo) {
-        if (this.isEdit) {
-          const index = this.products.findIndex(p => p.id === this.product.id);
-          this.products[index] = { ...this.product };
-        } else {
-          const newProduct = {
-            ...this.product,
-            id: this.createId(),
-            codigo: this.createId()
-          };
-          this.products.push(newProduct);
+// Definir las variables reactivas
+const Materias = ref<any[]>([]); // Lista de materias
+const selectedProducts = ref<any[]>([]); // Productos seleccionados
+const filters = ref({ global: { value: null } }); // Filtro global para búsqueda
+const showDialogCrearMateria = ref(false); // Controla el diálogo de creación
+const deleteProductsDialog = ref(false); // Controla el diálogo de eliminación
+const modelMateria = ref({ nombre: "", creditos: null, tipo: null }); // Objeto para crear/editar materia
+const tipos = ref([{ name: "Teórico" }, { name: "Práctico" }]); // Tipos de materias de ejemplo
+
+// Cargar las materias cuando se monta el componente
+onMounted(async () => {
+    try {
+        const response = await axiosInstance.get("materias");
+        if (response.data && Array.isArray(response.data)) {
+            Materias.value = response.data; // Actualizar las materias si la respuesta es válida
         }
-        this.productDialog = false;
-        this.product = { nombre: '', creditos: null, tipo: null };
-        this.isEdit = false;
-      } else {
-        alert('Por favor llena todos los campos.');
-      }
-    },
-    confirmDeleteSelected() {
-      this.deleteProductsDialog = true;
-    },
-    deleteSelectedProducts() {
-      this.products = this.products.filter(p => !this.selectedProducts.includes(p));
-      this.selectedProducts = null;
-      this.deleteProductsDialog = false;
-    },
-    createId() {
-      let id = '';
-      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-      for (let i = 0; i < 5; i++) {
-        id += chars.charAt(Math.floor(Math.random() * chars.length));
-      }
-      return id;
-    },
-    initFilters() {
-      this.filters = {
-        global: { value: null, matchMode: FilterMatchMode.CONTAINS }
-      };
-    },
-    loadSampleData() {
-      this.products = [
-        { id: '1', codigo: 'P001', nombre: 'Programación', creditos: 4, tipo: { name: 'Materia' } },
-        { id: '2', codigo: 'P002', nombre: 'Base de Datos', creditos: 3, tipo: { name: 'Módulo' } }
-      ];
+    } catch (error) {
+        console.error("Error fetching materias:", error);
     }
-  }
+});
+
+// Mostrar diálogo para agregar nueva materia
+const clickMostrarDialogoCrearMateria = () => {
+    modelMateria.value = { nombre: "", creditos: null, tipo: null }; // Limpiar el modelo
+    showDialogCrearMateria.value = true;
+};
+
+// Función para agregar una nueva materia
+const clickAgregarMateria = async () => {
+    if (!modelMateria.value.nombre || !modelMateria.value.creditos || !modelMateria.value.tipo) {
+        alert("Por favor, completa todos los campos.");
+        return;
+    }
+
+    try {
+        const response = await axiosInstance.post("materias", modelMateria.value);
+        if (response.data) {
+            Materias.value.push(response.data); // Agregar la nueva materia a la lista
+            showDialogCrearMateria.value = false; // Cerrar el diálogo
+            modelMateria.value = { nombre: "", creditos: null, tipo: null }; // Limpiar el formulario
+        }
+    } catch (error) {
+        console.error("Error adding materia:", error);
+    }
+};
+
+// Función para eliminar las materias seleccionadas
+const confirmDeleteSelected = () => {
+    if (selectedProducts.value.length > 0) {
+        deleteProductsDialog.value = true; // Mostrar el diálogo de confirmación
+    }
+};
+
+// Eliminar materias seleccionadas
+const deleteSelectedProducts = async () => {
+    try {
+        const ids = selectedProducts.value.map((p: any) => p.id); // Obtener los ids de las materias seleccionadas
+        const response = await axiosInstance.delete("materias", { data: { ids } });
+        if (response.data) {
+            // Eliminar las materias de la lista local
+            Materias.value = Materias.value.filter((materia: any) => !ids.includes(materia.id));
+            selectedProducts.value = []; // Limpiar selección
+            deleteProductsDialog.value = false; // Cerrar el diálogo de confirmación
+        }
+    } catch (error) {
+        console.error("Error deleting materias:", error);
+    }
 };
 </script>
+
+<style scoped lang="css">
+</style>
