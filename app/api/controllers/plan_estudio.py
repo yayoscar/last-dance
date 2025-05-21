@@ -14,27 +14,27 @@ from app.database.models.plan_estudio_materia import plan_estudio_materias
 router = APIRouter()
 
 @router.post("/",response_model=PlanResponse)
-def crear_plan(plan: PlanCrear,db: Session = Depends(get_db_session)):
-    db_plan=PlanEstudio(**plan.model_dump())
-    db.add(db_plan)
+def crear_plan_estudio(plan_estudio: PlanCrear,db: Session = Depends(get_db_session)):
+    db_plan_estudio=PlanEstudio(**plan_estudio.model_dump())
+    db.add(db_plan_estudio)
     db.commit()
-    db.refresh(db_plan)
-    return db_plan
+    db.refresh(db_plan_estudio)
+    return db_plan_estudio
 
 @router.get("/",response_model=List[PlanResponse])
-def obtener_plan(db: Session = Depends(get_db_session)):
+def obtener_plan_estudio(db: Session = Depends(get_db_session)):
     return db.query(PlanEstudio).all()
 
 #GET /{id_plan}
 @router.get("/{id}", response_model=PlanResponse)
 def obtener_item(id: int,db: Session = Depends(get_db_session)):
-    plan = db.query(PlanEstudio).filter_by(id_plan=id).first()
-    return plan
+    plan_estudio = db.query(PlanEstudio).filter_by(id_plan_estudio=id).first()
+    return plan_estudio
 
 #Patch /{id_plan}
 @router.patch("/{id}", response_model=PlanResponse)
-def editar_item(id: int, plan:PlanEditar,db: Session = Depends(get_db_session)):
-    db_plan_estudio= db.query(plan).filter_by(id_plan=id).first()
+def editar_item(id: int, plan_estudio:PlanEditar,db: Session = Depends(get_db_session)):
+    db_plan_estudio= db.query(plan_estudio).filter_by(id_plan_estudio=id).first()
     db_plan_estudio.nombre = plan_estudio.nombre
     db.commit()
     db.refresh(db_plan_estudio)
@@ -43,8 +43,8 @@ def editar_item(id: int, plan:PlanEditar,db: Session = Depends(get_db_session)):
 #DElETE /{id_plan}
 @router.delete("/{id}")
 def eliminar_item(id: int,db: Session = Depends(get_db_session)):
-    db_plan = db.query(plan_estudio).filter_by(id_plan=id).first()
-    db.delete(db_plan)
+    db_plan_estudio = db.query(plan_estudio).filter_by(id_plan_estudio=id).first()
+    db.delete(db_plan_estudio)
     db.commit()
     return {"message":"Plan eliminada"}
 
@@ -63,8 +63,8 @@ async def subida_pdf(file: UploadFile = File(...)):
 @router.post("/{id_plan_estudio}/agregar-materias")
 def agregar_materias_a_plan(id_plan_estudio: int, data: PlanEstudioMateriaAgregar, db: Session = Depends(get_db_session)):
     # Verificar existencia del plan
-    plan = db.query(PlanEstudio).filter_by(id_plan_estudio=id_plan_estudio).first()
-    if not plan:
+    plan_estudio = db.query(PlanEstudio).filter_by(id_plan_estudio=id_plan_estudio).first()
+    if not plan_estudio:
         raise HTTPException(status_code=404, detail="Plan de estudio no encontrado")
 
     # Verificar que todas las materias existen
@@ -90,8 +90,8 @@ def agregar_materias_a_plan(id_plan_estudio: int, data: PlanEstudioMateriaAgrega
 
 @router.get("/{id_plan_estudio}/con-materias", response_model=PlanEstudioConMateriasResponse)
 def obtener_plan_con_materias(id_plan_estudio: int, db: Session = Depends(get_db_session)):
-    plan = db.query(PlanEstudio).filter_by(id_plan_estudio=id_plan_estudio).first()
-    if not plan:
+    plan_estudio = db.query(PlanEstudio).filter_by(id_plan_estudio=id_plan_estudio).first()
+    if not plan_estudio:
         raise HTTPException(status_code=404, detail="Plan de estudio no encontrado")
 
     stmt = (
@@ -128,7 +128,7 @@ def obtener_plan_con_materias(id_plan_estudio: int, db: Session = Depends(get_db
     ]
 
     return PlanEstudioConMateriasResponse(
-        id_plan_estudio=plan.id_plan_estudio,
-        nombre=plan.nombre,
+        id_plan_estudio=plan_estudio.id_plan_estudio,
+        nombre=plan_estudio.nombre,
         materias=materias_response
     )

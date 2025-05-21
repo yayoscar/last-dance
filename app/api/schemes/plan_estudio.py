@@ -11,12 +11,12 @@ class PlanCrear(PlanBase):
     pass
 
 class PlanResponse(PlanBase):
-    id_plan: int
+    id_plan_estudio: int
 
     model_config = ConfigDict(from_attributes=True)
     
 class PlanEditar(PlanBase):
-    id_plan: int
+    id_plan_estudio: int
 
 class MateriaAsignacion(BaseModel):
     id_materia: int

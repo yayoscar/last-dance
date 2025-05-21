@@ -1,7 +1,7 @@
 from fastapi import APIRouter, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.controllers import carrera, plan_estudio,materias
+from app.api.controllers import carrera, periodo, plan_estudio,materias
 from app.api.controllers import alumno
  
 
@@ -29,6 +29,10 @@ app = FastAPI(title="Sistema de Gestión de Carreras",
         {
             "name": "Planes_estudio",
             "description": "Operaciones relacionadas con los planes de estudio ."
+        },
+        {
+            "name": "Periodos",
+            "description": "Operaciones relacionadas con los periodos ."
         }
         
     ])
@@ -53,5 +57,6 @@ v1_router.include_router(carrera.router, prefix="/carreras", tags=["Carreras"])
 v1_router.include_router(alumno.router, prefix="/alumnos", tags=["Alumnos"])
 v1_router.include_router(plan_estudio.router, prefix="/planes_estudio", tags=["Planes_estudio"])
 v1_router.include_router(materias.router, prefix="/materias", tags=["Materias"])
+v1_router.include_router(periodo.router, prefix="/periodos", tags=["Periodos"])
 
 app.include_router(v1_router)

@@ -20,6 +20,15 @@
               <i class="pi pi-home mr-2"></i>
               <span class="font-medium">Inicio</span>
             </a>
+          </li> <!-- Periodos -->
+          <li>
+            <NuxtLink to="/plan_estudio"
+              v-ripple
+              class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple">
+              <i class="pi pi-folder mr-2"></i>
+              <span class="font-medium">Plan estudio</span>
+            </NuxtLink>
+            
           </li>
           <!-- Cursos -->
           <li>
