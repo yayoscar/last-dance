@@ -30,6 +30,14 @@
               <span class="font-medium">Carreras</span>
             </NuxtLink>
           </li>
+          <!-- Planes de Estudio -->
+          <li>
+            <a v-ripple @click="planEstudio"
+              class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple">
+              <i class="pi pi-file mr-2"></i>
+              <span class="font-medium">Planes de Estudio</span>
+            </a>
+          </li>
           <!-- Cursos -->
           <li>
             <a v-ripple
@@ -127,6 +135,9 @@ export default {
       },
       leccion() {
         this.$router.push('/leccion');
+      },
+      planEstudio() {
+        this.$router.push('/PlanEstudio');
       }
   },
   components: {
