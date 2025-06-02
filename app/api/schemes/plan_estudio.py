@@ -2,21 +2,27 @@ from __future__ import annotations
 from typing import List, Optional
 from pydantic import BaseModel, ConfigDict, Field
 
-# from app.api.schemes.alumno import AlumnoBase
+# Esquema base para Carrera (para evitar importación circular)
+class CarreraBase(BaseModel):
+    id_carrera: int
+    nombre: str
 
 class PlanBase(BaseModel):
     nombre: str
+    id_carrera: int
 
 class PlanCrear(PlanBase):
     pass
 
 class PlanResponse(PlanBase):
-    id_plan: int
+    id_plan_estudio: int  # Corregido: era id_plan
+    carrera: Optional[CarreraBase] = None
 
     model_config = ConfigDict(from_attributes=True)
     
-class PlanEditar(PlanBase):
-    id_plan: int
+class PlanEditar(BaseModel):
+    nombre: str
+    id_carrera: int
 
 class MateriaAsignacion(BaseModel):
     id_materia: int
@@ -36,6 +42,8 @@ class MateriaPlanResponse(BaseModel):
 class PlanEstudioConMateriasResponse(BaseModel):
     id_plan_estudio: int
     nombre: str
+    id_carrera: int
+    carrera: Optional[CarreraBase] = None
     materias: List[MateriaPlanResponse]
 
     model_config = ConfigDict(from_attributes=True)
