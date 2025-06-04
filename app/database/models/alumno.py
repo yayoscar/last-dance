@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.database.db import Base
-from sqlalchemy import BigInteger, Integer, String, ForeignKey
+from sqlalchemy import Integer, String, ForeignKey
 from app.database.models.grupo_alumno import grupo_alumnos
 
 
@@ -16,8 +16,12 @@ class Alumno(Base):
     turno: Mapped[str] = mapped_column(String(255), nullable=False)
     generacion: Mapped[int] = mapped_column(Integer, nullable=False)
 
-    # Relaciones
-    id_carrera: Mapped[int] = mapped_column(ForeignKey("carreras.id_carrera"), nullable=False)
-    carrera: Mapped["Carrera"] = relationship("Carrera", back_populates="alumnos") #type: ignore
-    
+    # Relación con PlanEstudio (antes era carrera)
+    id_plan_estudio: Mapped[int] = mapped_column(
+        ForeignKey("planes_estudio.id_plan_estudio"), nullable=False
+    )
+    plan_estudio: Mapped["PlanEstudio"] = relationship("PlanEstudio", back_populates="alumnos") #type: ignore
+
+    carrera = relationship("Carrera", viewonly=True, secondary="planes_estudio", overlaps="carrera,plan_estudio")
+
     grupos: Mapped[list["Grupo"]] = relationship(secondary=grupo_alumnos, back_populates="alumnos") #type: ignore
