@@ -22,11 +22,20 @@
             </a>
           </li> 
            <li> <!-- Periodos -->
-            <NuxtLink to="/periodo"
+            <NuxtLink to="/periodos"
               v-ripple
               class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple">
               <i class="pi pi-folder mr-2"></i>
               <span class="font-medium">Periodos</span>
+            </NuxtLink>
+            
+          </li>
+          <li> <!-- Grupos -->
+            <NuxtLink to="/grupo"
+              v-ripple
+              class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple">
+              <i class="pi pi-folder mr-2"></i>
+              <span class="font-medium">Grupos</span>
             </NuxtLink>
             
           </li>

@@ -37,8 +37,7 @@ export interface AlumnoGrupo {
   curp: string;
   turno:string;
   generacion: string;
-  semestre: number;
-    
+  semestre: number;  
 }
 
 export interface GrupoConAlumnos extends Grupo {

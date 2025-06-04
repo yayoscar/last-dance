@@ -26,7 +26,7 @@ def obtener_item(id: int,db: Session = Depends(get_db_session)):
     periodo = db.query(Periodo).filter_by(id_periodo=id).first()
     return periodo
 
-#Patch /{id_carrera}
+#Patch /{id_periodo}
 @router.patch("/{id}", response_model=PeriodoResponse)
 def editar_item(id: int, periodo:PeriodoEditar,db: Session = Depends(get_db_session)):
     db_periodo = db.query(Periodo).filter_by(id_periodo=id).first()
