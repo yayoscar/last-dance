@@ -12,11 +12,11 @@ class PlanEstudio(Base):
     nombre: Mapped[str] = mapped_column(String(255), nullable=False)
 
     # Relaciones
-
     id_carrera: Mapped[int] = mapped_column(ForeignKey("carreras.id_carrera"), nullable=False)
-    carrera: Mapped["Carrera"] = relationship("Carrera", back_populates="planes_estudio") #type: ignore
+    carrera: Mapped["Carrera"] = relationship("Carrera", back_populates="planes_estudio")
 
-    materias: Mapped[list["Materia"]] = relationship(secondary=plan_estudio_materias, back_populates="planes_estudio") #type: ignore
+    materias: Mapped[list["Materia"]] = relationship( #type: ignore
+        secondary=plan_estudio_materias, back_populates="planes_estudio" 
+    )
 
-
-
+    alumnos: Mapped[list["Alumno"]] = relationship("Alumno", back_populates="plan_estudio")
