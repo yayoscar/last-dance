@@ -16,7 +16,7 @@ class GrupoCrear(GrupoBase):
 
 class GrupoResponse(GrupoBase):
     id_grupo: int  
-    carrera: Optional[PeriodoBase] = None
+    periodo: Optional[PeriodoBase] = None
 
     model_config = ConfigDict(from_attributes=True)
     
@@ -29,7 +29,7 @@ class AlumnoAsignacion(BaseModel):
     semestre: int = Field(gt=0, lt=13, description="Semestre entre 1 y 12")
 
 class GrupoAlumnoAgregar(BaseModel):
-    materias: List[AlumnoAsignacion]
+    alumnos: List[AlumnoAsignacion]
 
 class AlumnoGrupoResponse(BaseModel):
     id_alumno: int
@@ -44,10 +44,10 @@ class AlumnoGrupoResponse(BaseModel):
 
 
 class GrupoConAlumnosResponse(BaseModel):
-    id_grpo: int
+    id_grupo: int
     nombre: str
     id_periodo: int
     periodo: Optional[PeriodoBase] = None
-    alumno: List[AlumnoGrupoResponse]
+    alumnos: List[AlumnoGrupoResponse]
 
     model_config = ConfigDict(from_attributes=True)

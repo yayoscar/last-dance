@@ -21,8 +21,8 @@ router = APIRouter()
 @router.post("/", response_model=GrupoResponse)
 def crear_grupo(grupo: GrupoCrear, db: Session = Depends(get_db_session)):
     # Verificar que el plan existe
-    periodos = db.query(Periodo).filter_by(id_periodos=grupo.id_carrera).first()
-    if not periodos:
+    periodo = db.query(Periodo).filter_by(id_periodo=grupo.id_periodo).first()
+    if not periodo:
         raise HTTPException(status_code=404, detail="Periodo no encontrado")
     
     db_grupo = Grupo(**grupo.model_dump())
@@ -31,11 +31,11 @@ def crear_grupo(grupo: GrupoCrear, db: Session = Depends(get_db_session)):
     db.refresh(db_grupo)
     
     # Cargar la relación con periodos
-    db_grupo_with_periodos = db.query(Grupo).options(
-        joinedload(Grupo.periodos)
+    db_grupo_with_periodo = db.query(Grupo).options(
+        joinedload(Grupo.periodo)
     ).filter_by(id_grupo=db_grupo.id_grupo).first()
     
-    return db_grupo_with_periodos
+    return db_grupo_with_periodo
 
 @router.get("/", response_model=List[GrupoResponse])
 def obtener_grupos(db: Session = Depends(get_db_session)):
@@ -69,7 +69,7 @@ def editar_grupo(id: int, grupo_data: GrupoEditar, db: Session = Depends(get_db_
     
     # Actualizar campos
     db_grupo.nombre = grupo_data.nombre
-    db_grupo.id_carrera = grupo_data.id_periodo
+    db_grupo.id_periodo = grupo_data.id_periodo
     
     db.commit()
     db.refresh(db_grupo)
@@ -92,18 +92,18 @@ def eliminar_grupo(id: int, db: Session = Depends(get_db_session)):
     return {"message": "Grupo eliminado"}
 
 
-@router.post("/{id_grupo}/agregar-periodos")
-def agregar_periodos_a_grupo(id_grupo: int, data: GrupoAlumnoAgregar, db: Session = Depends(get_db_session)):
+@router.post("/{id_grupo}/agregar-alumnos")
+def agregar_alumnos_a_grupo(id_grupo: int, data: GrupoAlumnoAgregar, db: Session = Depends(get_db_session)):
     # Verificar existencia del grupo
     grupo = db.query(Grupo).filter_by(id_grupo=id_grupo).first()
     if not grupo:
         raise HTTPException(status_code=404, detail="Grupo no encontrado")
 
-    # Verificar que todas los carrera existen
-    ids_alumnos = [m.id_alumnos for m in data.alumnos]
-    alumnos_existentes = db.query(Alumno).filter(Alumno.id_materia.in_(ids_alumnos)).all()
+    # Verificar que todas los almns existen
+    ids_alumnos = [m.id_alumno for m in data.alumnos]
+    alumnos_existentes = db.query(Alumno).filter(Alumno.id_alumno.in_(ids_alumnos)).all()
     if len(alumnos_existentes) != len(ids_alumnos):
-        raise HTTPException(status_code=400, detail="Una o más alumnos no existen")
+        raise HTTPException(status_code=400, detail="Uno o más alumnos no existen")
 
     # Insertar relaciones
     insert_data = [
@@ -121,7 +121,7 @@ def agregar_periodos_a_grupo(id_grupo: int, data: GrupoAlumnoAgregar, db: Sessio
     return {"message": f"{len(insert_data)} alumnos agregados al grupo"}
 
 @router.get("/{id_grupo}/con-alumnos", response_model=GrupoConAlumnosResponse)
-def obtener_grupos_con_alumnos(id_grupo: int, db: Session = Depends(get_db_session)):
+def obtener_grupo_con_alumnos(id_grupo: int, db: Session = Depends(get_db_session)):
     # Obtener el grupo con su periodo
     grupo = db.query(Grupo).options(
         joinedload(Grupo.periodo)
@@ -175,5 +175,5 @@ def obtener_grupos_con_alumnos(id_grupo: int, db: Session = Depends(get_db_sessi
         nombre=grupo.nombre,
         id_periodo=grupo.id_periodo,
         periodo=grupo.periodo,
-        alumno=alumnos_response
+        alumnos=alumnos_response
     )
