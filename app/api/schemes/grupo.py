@@ -10,6 +10,8 @@ class PeriodoBase(BaseModel):
 class GrupoBase(BaseModel):
     nombre: str
     id_periodo: int
+    turno: str
+    tipo: str
 
 class GrupoCrear(GrupoBase):
     pass
@@ -23,6 +25,9 @@ class GrupoResponse(GrupoBase):
 class GrupoEditar(BaseModel):
     nombre: str
     id_periodo: int
+    turno: str
+    tipo: str
+    
 
 class AlumnoAsignacion(BaseModel):
     id_alumno: int
@@ -46,6 +51,8 @@ class AlumnoGrupoResponse(BaseModel):
 class GrupoConAlumnosResponse(BaseModel):
     id_grupo: int
     nombre: str
+    turno: str
+    tipo: str
     id_periodo: int
     periodo: Optional[PeriodoBase] = None
     alumnos: List[AlumnoGrupoResponse]

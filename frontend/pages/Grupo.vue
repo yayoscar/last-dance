@@ -15,7 +15,9 @@
                         </div>
                     </template>
                     <Column field="nombre" header="Nombre del Grupo"></Column>
-                    <Column field="Periodo.nombre" header="Periodo"></Column>
+                    <Column field="turno" header="Turno del Grupo"></Column>
+                    <Column field="tipo" header="Tipo"></Column>
+                    <Column field="periodo.nombre" header="Periodo"></Column>
                     <Column field="acciones" header="Acciones">
                         <template #body="slotProps">
                             <div class="flex gap-2">
@@ -68,6 +70,50 @@
                                 class="p-error"
                             >
                                 {{ $v.nombre.$errors[0].$message }}
+                            </small>
+                        </div>
+                    </div>
+                    <!-- Tipos -->
+                    <div class="field">
+                        <label class="font-semibold" for="tipo">Tipo *</label>
+                        <div class="flex flex-col gap-2 mt-1">
+                            <Dropdown
+                                id="tipo"
+                                v-model="modelGrupo.tipo"
+                                :options="grupos"
+                                optionLabel="tipo"
+                                placeholder="Selecciona un tipo"
+                                class="w-full"
+                                :class="{ 'p-invalid': $v.tipo.$error }"
+                                @blur="$v.tipo.$touch"
+                            />
+                            <small 
+                                v-if="$v.tipo.$error" 
+                                class="p-error"
+                            >
+                                {{ $v.tipo.$errors[0].$message }}
+                            </small>
+                        </div>
+                    </div>
+                    <!-- Turno del Grupo -->
+                    <div class="field">
+                        <label class="font-semibold" for="turno">Turno del Grupo *</label>
+                        <div class="flex flex-col gap-2 mt-1">
+                            <Dropdown
+                                id="turno"
+                                v-model="modelGrupo.turno"
+                                :options="grupos"
+                                optionLabel="turno"
+                                placeholder="Selecciona un turno"
+                                class="w-full"
+                                :class="{ 'p-invalid': $v.turno.$error }"
+                                @blur="$v.turno.$touch"
+                            />
+                            <small 
+                                v-if="$v.turno.$error" 
+                                class="p-error"
+                            >
+                                {{ $v.turno.$errors[0].$message }}
                             </small>
                         </div>
                     </div>
@@ -126,7 +172,7 @@
                 <span>
                     ¿Estás seguro de que quieres eliminar el Grupo
                     <strong>{{ grupoAEliminar?.nombre }}</strong> 
-                     <strong>{{ grupoAEliminar?.grupo?.nombre }}</strong>?
+                     <strong>{{ grupoAEliminar?.periodo?.nombre }}</strong>?
                 </span>
             </div>
             
@@ -156,7 +202,7 @@
 import { useVuelidate } from '@vuelidate/core'
 import { required, minLength } from '@vuelidate/validators'
 import { useToast } from 'primevue/usetoast'
-import type { Carrera } from '~/features/grupos/models/grupo-mode'
+import type { Periodo } from '~/features/periodos/models/periodo-model'
 import type { Grupo, GrupoCreate, GrupoUpdate } from '~/features/grupos/models/grupo-mode'
 import axiosInstance from "~/utils/axiosConfig"
 
@@ -164,8 +210,8 @@ import axiosInstance from "~/utils/axiosConfig"
 const toast = useToast()
 
 // Estados reactivos
-const grupo = ref<Grupo[]>([])
-const periodo = ref<Periodo[]>([])
+const grupos = ref<Grupo[]>([])
+const periodos = ref<Periodo[]>([])
 const loading = ref(false)
 
 // Dialog states
@@ -177,6 +223,8 @@ const grupoAEliminar = ref<Grupo | null>(null)
 // Modelo del formulario
 const modelGrupo = ref<GrupoCreate | (GrupoUpdate & { id_grupo?: number })>({
     nombre: "",
+    turno: "",
+    tipo: "",
     id_periodo: null as any
 })
 
@@ -186,20 +234,29 @@ const rules = {
         required: required,
         minLength: minLength(3)
     },
+    turno: {
+        required: required,
+        minLength: minLength(3)
+    },
+    tipo: {
+        required: required,
+        minLength: minLength(3)
+    },
     id_periodo: {
-        required: required
+        required: required,   
     }
+
 }
 
 // Vuelidate
 const $v = useVuelidate(rules, modelGrupo)
 
 // Métodos
-const cargarGrupo = async () => {
+const cargarGrupos = async () => {
     try {
         loading.value = true
-        const response = await axiosInstance.get<Grupo[]>("grupo")
-        grupo.value = response.data
+        const response = await axiosInstance.get<Grupo[]>("grupos")
+        grupos.value = response.data
     } catch (error) {
         console.error("Error al obtener grupos:", error)
         toast.add({
@@ -232,6 +289,8 @@ const clickMostrarDialogoCrearGrupo = () => {
     modoEdicion.value = false
     modelGrupo.value = { 
         nombre: "", 
+        turno: "",
+        tipo: "",
         id_periodo: null as any 
     }
     $v.value.$reset()
@@ -267,9 +326,11 @@ const submitGrupo = async () => {
             // Editar grupo existente
             const grupoUpdate = modelGrupo.value as GrupoUpdate & { id_grupo: number }
             const response = await axiosInstance.patch<Grupo>(
-                `grupo/${grupoUpdate.id_grupo}`, 
+                `grupos/${grupoUpdate.id_grupo}`, 
                 {
                     nombre: grupoUpdate.nombre,
+                    turno: grupoUpdate.turno,
+                    tipo: grupoUpdate.tipo,
                     id_periodo: grupoUpdate.id_periodo
                 }
             )
@@ -288,7 +349,7 @@ const submitGrupo = async () => {
             })
         } else {
             // Crear nuevo grupo
-            const grupoCreate = modelGrupovalue as GrupoCreate
+            const grupoCreate = modelGrupo.value as GrupoCreate
             const response = await axiosInstance.post<Grupo>("grupos", grupoCreate)
             
             // Agregar el nuevo grupo a la lista
@@ -326,8 +387,8 @@ const confirmarEliminarGrupo = async () => {
         await axiosInstance.delete(`grupos/${grupoAEliminar.value.id_grupo}`)
         
         // Remover el grupo de la lista
-        grupo.value = grupos.value.filter(
-            p => p.id_grupo !== GrupoAEliminar.value?.id_grupo
+        grupos.value = grupos.value.filter(
+            p => p.id_grupo !== grupoAEliminar.value?.id_grupo
         )
         
         toast.add({
@@ -358,6 +419,8 @@ const cancelarDialog = () => {
     $v.value.$reset()
     modelGrupo.value = { 
         nombre: "", 
+        turno: "",
+        tipo: "",
         id_periodo: null as any 
     }
 }

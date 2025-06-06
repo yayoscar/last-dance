@@ -7,16 +7,22 @@ export interface Grupo {
   nombre: string;
   id_periodo: number;
   periodo?: Periodo;
+  turno: string;
+  tipo: string;
 }
 
 export interface GrupoCreate {
   nombre: string;
   id_periodo: number;
+  turno: string;
+  tipo: string;
 }
 
 export interface GrupoUpdate {
   nombre: string;
   id_periodo: number;
+  turno: string;
+  tipo: string;
 }
 
 export interface AlumnoAsignacion {
@@ -31,9 +37,9 @@ export interface GrupoAlumnoAgregar {
 export interface AlumnoGrupo {
   id_alumno: number;
   nombre: string;
-  ape_paterno: string
-  ape_materno: string
-  num_control: string
+  ape_paterno: string;
+  ape_materno: string;
+  num_control: string;
   curp: string;
   turno:string;
   generacion: string;

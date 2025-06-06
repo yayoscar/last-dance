@@ -44,6 +44,7 @@ app = FastAPI(title="Sistema de Gestión de Carreras",
 origins = [
     "http://localhost:3000",  # ejemplo: frontend en React
     "http://127.0.0.1:3000",
+    "*"
     # Puedes agregar más orígenes aquí
 ]
 app.add_middleware(

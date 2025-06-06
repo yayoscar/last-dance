@@ -39,10 +39,10 @@ def crear_grupo(grupo: GrupoCrear, db: Session = Depends(get_db_session)):
 
 @router.get("/", response_model=List[GrupoResponse])
 def obtener_grupos(db: Session = Depends(get_db_session)):
-    grupo = db.query(Grupo).options(
+    grupos= db.query(Grupo).options(
         joinedload(Grupo.periodo)
     ).all()
-    return grupo
+    return grupos
 
 @router.get("/{id}", response_model=GrupoResponse)
 def obtener_grupo(id: int, db: Session = Depends(get_db_session)):
