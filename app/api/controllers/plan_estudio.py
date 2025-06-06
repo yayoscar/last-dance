@@ -24,14 +24,10 @@ def listar_planes_estudio(db: Session = Depends(get_db_session)):
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=str(e))
+    
 # Asegúrate que tus rutas estén consistentes con o sin barra final
-@router.post("/{id_plan_estudio}/materias", status_code=status.HTTP_201_CREATED)
-def asignar_materia_a_semestre(
-    id_plan_estudio: int,
-    data: MateriaAsignacion,
-    db: Session = Depends(get_db_session)
-):
-    async def crear_plan_estudio(plan_data: PlanCrear, db: Session = Depends(get_db_session)):
+@router.post("/", status_code=status.HTTP_201_CREATED)
+def crear_plan_estudio(plan_data: PlanCrear, db: Session = Depends(get_db_session)):
         try:
             nuevo_plan = PlanEstudio(**plan_data.dict())
             db.add(nuevo_plan)
