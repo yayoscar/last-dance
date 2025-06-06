@@ -358,18 +358,16 @@ const submitPlan = async () => {
     
     if (modoEdicion.value) {
       const planUpdate = modelPlan.value as PlanEstudioUpdate & { id_plan_estudio: number }
+      // Asegúrate que la URL termine con /
       const response = await axiosInstance.patch<PlanEstudio>(
-        `planes_estudio/${planUpdate.id_plan_estudio}`, 
+        `planes_estudio/${planUpdate.id_plan_estudio}/`, 
         { nombre: planUpdate.nombre, id_carrera: planUpdate.id_carrera }
       )
-      
-      const index = planesEstudio.value.findIndex(p => p.id_plan_estudio === planUpdate.id_plan_estudio)
-      if (index !== -1) planesEstudio.value[index] = response.data
-      
-      mostrarExito('Plan de estudio actualizado exitosamente')
+      // ... resto del código
     } else {
       const planCreate = modelPlan.value as PlanEstudioCreate
-      const response = await axiosInstance.post<PlanEstudio>("planes_estudio", planCreate)
+      // Asegúrate que la URL termine con /
+      const response = await axiosInstance.post<PlanEstudio>("planes_estudio/", planCreate)
       planesEstudio.value.push(response.data)
       mostrarExito('Plan de estudio agregado exitosamente')
     }
@@ -381,7 +379,6 @@ const submitPlan = async () => {
     loading.value = false
   }
 }
-
 const confirmarEliminarPlan = async () => {
   if (!planAEliminar.value) return
 
@@ -445,28 +442,29 @@ const abrirSelectorMaterias = (semestre: number) => {
 }
 
 const asignarMaterias = async () => {
-  if (!planSeleccionado.value || materiasSeleccionadas.value.length === 0) return
+  if (!planSeleccionado.value || materiasSeleccionadas.value.length === 0) return;
 
   try {
-    loading.value = true
-    await Promise.all(
-      materiasSeleccionadas.value.map(materia =>
-        axiosInstance.post(`planes_estudio/${planSeleccionado.value?.id_plan_estudio}/materias`, {
+    loading.value = true;
+    for (const materia of materiasSeleccionadas.value) {
+      await axiosInstance.post(
+        `/planes_estudio/${planSeleccionado.value.id_plan_estudio}/materias`,
+        {
           id_materia: materia.id_materia,
           semestre: semestreActual.value
-        })
-      )
-    )
-    
-    mostrarExito('Materias asignadas correctamente')
-    showDialogAgregarMaterias.value = false
-    await cargarMateriasPorSemestre()
-  } catch (error) {
-    mostrarError('Error al asignar materias')
+        }
+      );
+    }
+    mostrarExito('Materias asignadas correctamente');
+    showDialogAgregarMaterias.value = false;
+    await cargarMateriasPorSemestre();
+  } catch (error: any) {
+    mostrarError(error.response?.data?.detail || 'Error al asignar materias');
   } finally {
-    loading.value = false
+    loading.value = false;
+    materiasSeleccionadas.value = [];
   }
-}
+};
 
 const desasignarMateria = async (materia: Materia, semestre: number) => {
   if (!planSeleccionado.value) return

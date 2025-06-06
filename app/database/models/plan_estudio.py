@@ -2,9 +2,6 @@ from typing import Optional
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.database.db import Base
 from sqlalchemy import ForeignKey, String
-from app.database.models.plan_estudio_materia import plan_estudio_materias
-
-
 class PlanEstudio(Base):
     __tablename__ = "planes_estudio"
 
@@ -12,11 +9,17 @@ class PlanEstudio(Base):
     nombre: Mapped[str] = mapped_column(String(255), nullable=False)
 
     # Relaciones
-
     id_carrera: Mapped[int] = mapped_column(ForeignKey("carreras.id_carrera"), nullable=False)
     carrera: Mapped["Carrera"] = relationship("Carrera", back_populates="planes_estudio") #type: ignore
-
-    materias: Mapped[list["Materia"]] = relationship(secondary=plan_estudio_materias, back_populates="planes_estudio") #type: ignore
-
-
-
+    materias = relationship(
+        "Materia",
+        secondary="plan_estudio_materia",
+        back_populates="planes_estudio",
+        overlaps="materias_asociadas"
+    )
+    
+    materias_asociadas = relationship(
+        "PlanEstudioMateria",
+        back_populates="plan_estudio",
+        overlaps="materias"
+    )
