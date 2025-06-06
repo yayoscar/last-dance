@@ -39,6 +39,17 @@
             </a>
           </li>
           <!-- Cursos -->
+        <!-- periodo -->
+        <li>
+          <NuxtLink to="/periodos"
+            v-ripple 
+            class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple">
+            <i class="pi pi-calendar mr-2"></i>
+            <span class="font-medium">Periodo</span>
+          </NuxtLink>
+        </li>
+        <!-- periodo -->
+
           <li>
             <a v-ripple
               class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple">
