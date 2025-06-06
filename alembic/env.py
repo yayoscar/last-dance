@@ -14,7 +14,8 @@ from app.database.models.grupo import Grupo
 from app.database.models.materia import Materia
 from app.database.models.periodo import Periodo
 from app.database.models.plan_estudio import PlanEstudio
-
+from app.database.models.modulo import Modulo  # Importa explícitamente los modelos
+from app.database.models.materia import Materia
 
 
 

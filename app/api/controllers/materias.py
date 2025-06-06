@@ -1,46 +1,75 @@
 from typing import List
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from app.api.schemes import materias
-from app.api.schemes.materias import MateriaCrear, MateriaEditar, MateriaResponse
+from app.api.schemes.materias import MateriaCrear, MateriaEditar, MateriaResponse, TipoMateria
 from app.database.db import get_db_session
-from app.database.models import materia
 from app.database.models.materia import Materia
-
 
 router = APIRouter()
 
-@router.post("/",response_model=MateriaResponse)
-def crear_materia(materia: MateriaCrear,db: Session = Depends(get_db_session)):
-    db_materia=Materia(**materia.model_dump())
-    db.add(db_materia)
+@router.post("/", response_model=MateriaResponse, status_code=status.HTTP_201_CREATED)
+async def crear_materia(materia_data: MateriaCrear, db: Session = Depends(get_db_session)):
+    # Validar que si es tipo "Módulo" tenga un módulo seleccionado
+    if materia_data.tipo == "Módulo" and materia_data.id_modulo is None:
+        raise HTTPException(
+            status_code=400, 
+            detail="id_modulo es requerido para materias de tipo Módulo"
+        )
+    
+    # Validar que si es tipo "Materia" no tenga módulo
+    if materia_data.tipo == "Materia" and materia_data.id_modulo is not None:
+        raise HTTPException(
+            status_code=400,
+            detail="Las materias de tipo Materia no pueden tener módulo asociado"
+        )
+    
+    nueva_materia = Materia(**materia_data.dict())
+    db.add(nueva_materia)
     db.commit()
-    db.refresh(db_materia)
-    return db_materia
+    db.refresh(nueva_materia)
+    return nueva_materia
 
-@router.get("/",response_model=List[MateriaResponse])
+
+@router.get("/", response_model=List[MateriaResponse])
 def obtener_materias(db: Session = Depends(get_db_session)):
     return db.query(Materia).all()
 
-#GET /{id_materia}
 @router.get("/{id}", response_model=MateriaResponse)
-def obtener_item(id: int,db: Session = Depends(get_db_session)):
-    materia = db.query(Materia).filter_by(id_materia=id).first()
-    return materia
+def obtener_item(id: int, db: Session = Depends(get_db_session)):
+    db_materia = db.query(Materia).filter_by(id_materia=id).first()
+    if not db_materia:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Materia no encontrada"
+        )
+    return db_materia
 
-#Patch /{id_materia}
 @router.patch("/{id}", response_model=MateriaResponse)
-def editar_item(id: int, materia:MateriaEditar,db: Session = Depends(get_db_session)):
-    db_materia= db.query(Materia).filter_by(id_materia=id).first()
-    db_materia.nombre = materia.nombre
+def editar_item(id: int, materia: MateriaEditar, db: Session = Depends(get_db_session)):
+    db_materia = db.query(Materia).filter_by(id_materia=id).first()
+    if not db_materia:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Materia no encontrada"
+        )
+    
+    update_data = materia.model_dump(exclude_unset=True)
+    for field, value in update_data.items():
+        setattr(db_materia, field, value)
+    
     db.commit()
     db.refresh(db_materia)
     return db_materia
     
-#DElETE /{id_materia}
-@router.delete("/{id}")
-def eliminar_item(id: int,db: Session = Depends(get_db_session)):
+@router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
+def eliminar_item(id: int, db: Session = Depends(get_db_session)):
     db_materia = db.query(Materia).filter_by(id_materia=id).first()
+    if not db_materia:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Materia no encontrada"
+        )
+    
     db.delete(db_materia)
     db.commit()
-    return {"message":"Materia eliminada"}
+    return None  # 204 responses should have no content
