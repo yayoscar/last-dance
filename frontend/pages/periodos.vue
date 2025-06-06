@@ -1,188 +1,319 @@
 <template>
-  <div>
-    <!-- Título -->
-    <div class="flex justify-center items-center gap-3 mb-4">
-      <i class="pi pi-calendar animate-bounce text-3xl text-blue-600" />
-      <h2 class="text-3xl font-semibold animate-fade-in">Periodos</h2>
+    <div>
+        <Card>
+            <template #title>Periodos</template>
+            
+            <template #content>
+                <DataTable :value="periodos" stripedRows>
+                    <template #header>
+                        <div class="flex justify-end">
+                            <Button 
+                                @click="clickMostrarDialogoCrearPeriodo"
+                                label="Agregar Periodo" 
+                                icon="pi pi-plus"
+                            />
+                        </div>
+                    </template>
+                    <Column field="nombre" header="Nombre del periodo"></Column>
+                    <Column field="acciones" header="Acciones">
+                        <template #body="slotProps">
+                            <div class="flex gap-2">
+                                <Button 
+                                    icon="pi pi-pencil" 
+                                    severity="info" 
+                                    size="small" 
+                                    @click="clickEditarPeriodo(slotProps.data)"
+                                />
+                                <Button 
+                                    icon="pi pi-trash" 
+                                    severity="danger" 
+                                    size="small" 
+                                    @click="clickEliminarPeriodo(slotProps.data)"
+                                />
+                            </div>
+                        </template>
+                    </Column>                
+                </DataTable>
+            </template>
+        </Card>
+
+        <!-- Dialog Crear/Editar Periodo -->
+        <Dialog 
+            v-model:visible="showDialogCrearPeriodo" 
+            modal 
+            :header="modoEdicion ? 'Editar Periodo' : 'Agregar un Periodo'" 
+            :style="{ width: '50rem' }"
+        >
+            <span class="text-surface-500 dark:text-surface-400 block mb-4">
+                {{ modoEdicion ? 'Edita la información del periodo.' : 'Agrega información del periodo.' }}
+            </span>
+            
+            <form @submit.prevent="submitPeriodo">
+                <div class="field">
+                    <label class="font-semibold w-24" for="nombre">Nombre del Periodo *</label>
+                    <div class="flex flex-col gap-2 mt-1 mb-4">
+                        <InputText 
+                            id="nombre"
+                            v-model="modelPeriodo.nombre"
+                            class="flex-auto" 
+                            autocomplete="off"
+                            :class="{ 'p-invalid': $v.nombre.$error }"
+                            @blur="$v.nombre.$touch"
+                        />
+                        <small 
+                            v-if="$v.nombre.$error" 
+                            class="p-error"
+                        >
+                            {{ $v.nombre.$errors[0].$message }}
+                        </small>
+                    </div>
+                </div>
+                
+                <div class="flex justify-end gap-2">
+                    <Button 
+                        type="button" 
+                        label="Cancelar" 
+                        severity="secondary" 
+                        @click="cancelarDialog"
+                    />
+                    <Button 
+                        type="submit" 
+                        :label="modoEdicion ? 'Actualizar' : 'Agregar'" 
+                        severity="primary"
+                        :loading="loading"
+                    />
+                </div>
+            </form>
+        </Dialog>
+
+        <!-- Dialog Confirmar Eliminación -->
+        <Dialog 
+            v-model:visible="showDialogEliminar" 
+            modal 
+            header="Confirmar Eliminación" 
+            :style="{ width: '30rem' }"
+        >
+            <div class="flex items-center gap-4">
+                <i class="pi pi-exclamation-triangle text-orange-500" style="font-size: 2rem"></i>
+                <span>¿Estás seguro de que quieres eliminar el periodo <strong>{{ periodoAEliminar?.nombre }}</strong>?</span>
+            </div>
+            
+            <div class="flex justify-end gap-2 mt-4">
+                <Button 
+                    type="button" 
+                    label="Cancelar" 
+                    severity="secondary" 
+                    @click="showDialogEliminar = false"
+                />
+                <Button 
+                    type="button" 
+                    label="Eliminar" 
+                    severity="danger"
+                    :loading="loading"
+                    @click="confirmarEliminarPeriodo"
+                />
+            </div>
+        </Dialog>
+
+        <!-- Toast para notificaciones -->
+        <Toast />
     </div>
-
-    <div class="card">
-      <Toolbar class="mb-6">
-        <template #start>
-          <Button label="Nuevo" icon="pi pi-plus" class="mr-2" @click="showDialogCrearPeriodo" />
-          <Button
-            label="Eliminar"
-            icon="pi pi-trash"
-            severity="danger"
-            outlined
-            @click="confirmDeleteSelected"
-            :disabled="!selectedPeriods.length"
-          />
-        </template>
-      </Toolbar>
-
-      <DataTable
-        ref="dt"
-        v-model:selection="selectedPeriods"
-        :value="periods"
-        dataKey="id_periodo"
-        :paginator="true"
-        :rows="5"
-        :filters="filters"
-        paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"
-      >
-        <template #header>
-          <div class="flex justify-end">
-            <IconField>
-              <InputIcon><i class="pi pi-search" /></InputIcon>
-            </IconField>
-          </div>
-        </template>
-
-        <Column selectionMode="multiple" style="width: 3rem" :exportable="false" />
-        <Column field="periodo" header="Periodo" sortable style="min-width: 12rem" />
-        <Column field="fecha_inicio" header="Fecha Inicio" sortable style="min-width: 10rem" />
-        <Column field="fecha_fin" header="Fecha Fin" sortable style="min-width: 10rem" />
-      </DataTable>
-    </div>
-
-    <!-- Diálogo crear periodo -->
-    <Dialog v-model:visible="showDialog" header="Agregar Periodo" :modal="true" :style="{ width: '40rem' }">
-      <div class="field mb-4">
-        <label class="font-semibold block mb-1">Periodo</label>
-        <InputText v-model="newPeriodo.periodo" autocomplete="off" />
-      </div>
-      <div class="field mb-4">
-        <label class="font-semibold block mb-1">Fecha Inicio</label>
-        <InputText v-model="newPeriodo.fecha_inicio" type="date" />
-      </div>
-      <div class="field mb-4">
-        <label class="font-semibold block mb-1">Fecha Fin</label>
-        <InputText v-model="newPeriodo.fecha_fin" type="date" />
-      </div>
-
-      <div class="flex justify-end gap-2">
-        <Button label="Cancelar" severity="secondary" @click="showDialog = false" />
-        <Button label="Agregar" severity="primary" @click="agregarPeriodo" />
-      </div>
-    </Dialog>
-
-    <!-- Diálogo eliminar -->
-    <Dialog v-model:visible="deletePeriodsDialog" :style="{ width: '450px' }" header="Confirmar" :modal="true">
-      <div class="flex items-center gap-4">
-        <i class="pi pi-exclamation-triangle !text-3xl" />
-        <span>¿Estás seguro de que deseas eliminar el/los periodo(s) seleccionado(s)?</span>
-      </div>
-      <template #footer>
-        <Button label="No" icon="pi pi-times" text @click="deletePeriodsDialog = false" />
-        <Button label="Sí" icon="pi pi-check" @click="deleteSelectedPeriods" />
-      </template>
-    </Dialog>
-  </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { FilterMatchMode } from '@primevue/core/api'
-import axiosInstance from '~/utils/axiosConfig'
+import { useVuelidate } from '@vuelidate/core'
+import { required, minLength } from '@vuelidate/validators'
+import { useToast } from 'primevue/usetoast'
+import type { Periodo, PeriodoCreate,PeriodoUpdate } from '~/features/periodos/models/periodo-model'
+import axiosInstance from "~/utils/axiosConfig"
 
-const periods = ref([])
-const selectedPeriods = ref([])
-const filters = ref({})
-const deletePeriodsDialog = ref(false)
-const showDialog = ref(false)
-const newPeriodo = ref({
-  periodo: '',
-  fecha_inicio: '',
-  fecha_fin: ''
+// Composables
+const toast = useToast()
+
+// Estados reactivos
+const periodos = ref<Periodo[]>([])
+const loading = ref(false)
+
+// Dialog states
+const showDialogCrearPeriodo = ref(false)
+const showDialogEliminar = ref(false)
+const modoEdicion = ref(false)
+const periodoAEliminar = ref<Periodo | null>(null)
+
+// Modelo del formulario
+const modelPeriodo = ref<PeriodoCreate | PeriodoUpdate>({
+    nombre: ""
 })
 
-const initFilters = () => {
-  filters.value = {
-    global: { value: null, matchMode: FilterMatchMode.CONTAINS }
-  }
+// Reglas de validación
+const rules = {
+    nombre: {
+        required: required,
+        minLength: minLength(3)
+    }
 }
 
-const loadPeriods = async () => {
-  try {
-    const response = await axiosInstance.get('periodos')
-    periods.value = response.data
-  } catch (error) {
-    console.error('Error al cargar periodos:', error)
-  }
+// Vuelidate
+const $v = useVuelidate(rules, modelPeriodo)
+
+// Métodos
+const cargarPeriodos = async () => {
+    try {
+        loading.value = true
+        const response = await axiosInstance.get<Periodos[]>("periodos")
+        periodos.value = response.data
+    } catch (error) {
+        console.error("Error al obtener periodos:", error)
+        toast.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Error al cargar los periodos',
+            life: 3000
+        })
+    } finally {
+        loading.value = false
+    }
 }
 
-const agregarPeriodo = async () => {
-  if(!newPeriodo.value.periodo || !newPeriodo.value.fecha_inicio || !newPeriodo.value.fecha_fin){
-    alert("Por favor llena todos los campos");
-    return;
-  }
-  try {
-    const response = await axiosInstance.post('periodos', newPeriodo.value)
-    periods.value.push(response.data)
-    showDialog.value = false
-    newPeriodo.value = { periodo: '', fecha_inicio: '', fecha_fin: '' }
-  } catch (error) {
-    console.error('Error al agregar periodo:', error)
-  }
+const clickMostrarDialogoCrearPeriodo = () => {
+    modoEdicion.value = false
+    modelPeriodo.value = { nombre: "" }
+    $v.value.$reset()
+    showDialogCrearPeriodo.value = true
 }
 
-const deleteSelectedPeriods = async () => {
-  try {
-    const promises = selectedPeriods.value.map(periodo =>
-      axiosInstance.delete(`periodos/${periodo.id_periodo}`)
-    )
-    await Promise.all(promises)
-
-    periods.value = periods.value.filter(
-      p => !selectedPeriods.value.some(sel => sel.id_periodo === p.id_periodo)
-    )
-
-    selectedPeriods.value = []
-    deletePeriodsDialog.value = false
-  } catch (error) {
-    console.error('Error eliminando periodos:', error)
-  }
+const clickEditarPeriodo = (periodo: Periodo) => {
+    modoEdicion.value = true
+    modelPeriodo.value = { ...periodo }
+    $v.value.$reset()
+    showDialogCrearPeriodo.value = true
 }
 
-const confirmDeleteSelected = () => {
-  deletePeriodsDialog.value = true
+const clickEliminarPeriodo = (periodo: Periodo) => {
+    periodoAEliminar.value = periodo
+    showDialogEliminar.value = true
 }
 
-const showDialogCrearPeriodo = () => {
-  showDialog.value = true
+const submitPeriodo = async () => {
+    // Validar formulario
+    const isValid = await $v.value.$validate()
+    if (!isValid) {
+        return
+    }
+
+    try {
+        loading.value = true
+        
+        if (modoEdicion.value) {
+            // Editar periodo existente
+            const periodoUpdate = modelPeriodo.value as PeriodoUpdate
+            const response = await axiosInstance.patch<Periodo>(
+                `periodos/${periodoUpdate.id_periodo}`, 
+                periodoUpdate
+            )
+            
+            // Actualizar el periodo en la lista
+            const index = periodos.value.findIndex(c => c.id_periodo === periodoUpdate.id_periodo)
+            if (index !== -1) {
+                periodos.value[index] = response.data
+            }
+            
+            toast.add({
+                severity: 'success',
+                summary: 'Éxito',
+                detail: 'Periodo actualizado exitosamente',
+                life: 3000
+            })
+        } else {
+            // Crear nuevo periodo
+            const periodoCreate = modelPeriodo.value as PeriodoCreate
+            const response = await axiosInstance.post<Periodo>("periodos", periodoCreate)
+            
+            // Agregar el nuevo periodo a la lista
+            periodos.value.push(response.data)
+            
+            toast.add({
+                severity: 'success',
+                summary: 'Éxito',
+                detail: 'Periodo agregada exitosamente',
+                life: 3000
+            })
+        }
+        
+        showDialogCrearPeriodo.value = false
+        
+    } catch (error: any) {
+        console.error("Error al guardar periodo:", error)
+        toast.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: error.response?.data?.detail || 'Error al guardar el periodo',
+            life: 3000
+        })
+    } finally {
+        loading.value = false
+    }
 }
 
+const confirmarEliminarPeriodo = async () => {
+    if (!periodoAEliminar.value) return
+
+    try {
+        loading.value = true
+        
+        await axiosInstance.delete(`periodos/${periodoAEliminar.value.id_periodo}`)
+        
+        // Remover el periodo de la lista
+        periodos.value = periodos.value.filter(
+            c => c.id_periodo !== periodoAEliminar.value?.id_periodo
+        )
+        
+        toast.add({
+            severity: 'success',
+            summary: 'Éxito',
+            detail: 'Periodo eliminado exitosamente',
+            life: 3000
+        })
+        
+        showDialogEliminar.value = false
+        periodoAEliminar.value = null
+        
+    } catch (error: any) {
+        console.error("Error al eliminar periodo:", error)
+        toast.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: error.response?.data?.detail || 'Error al eliminar el periodo',
+            life: 3000
+        })
+    } finally {
+        loading.value = false
+    }
+}
+
+const cancelarDialog = () => {
+    showDialogCrearPeriodo.value = false
+    $v.value.$reset()
+    modelPeriodo.value = { nombre: "" }
+}
+
+// Lifecycle
 onMounted(() => {
-  //initFilters()
-  loadPeriods();
+    cargarPeriodos()
 })
 </script>
 
 <style scoped>
-@keyframes fade-in {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-.animate-fade-in {
-  animation: fade-in 0.6s ease-out;
+.field {
+    margin-bottom: 1rem;
 }
 
-@keyframes bounce {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-5px);
-  }
+.p-invalid {
+    border-color: #e24c4c;
 }
-.animate-bounce {
-  animation: bounce 1.2s infinite ease-in-out;
+
+.p-error {
+    color: #e24c4c;
+    font-size: 0.875rem;
 }
 </style>

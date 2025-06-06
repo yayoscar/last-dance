@@ -29,13 +29,18 @@ app = FastAPI(
         },
         {
             "name": "Planes_estudio",
+            "description": "Operaciones relacionadas con los planes de estudio ."
+        },
+        {
+            "name": "Periodos",
+            "description": "Operaciones relacionadas con los periodos ."
+        },
+        {
+            "name": "Grupos",
+            "description": "Operaciones relacionadas con los grupos"
             "description": "Operaciones relacionadas con los planes de estudio."
         },
-        {
-            "name": "Periodos",          # <-- Agrega la sección para periodos
-            "description": "Operaciones relacionadas con los periodos escolares."
-        },
-        {
+        
             "name": "Materias",
             "description": "Operaciones relacionadas con las materias."
         }
@@ -46,6 +51,8 @@ origins = [
     "*",
     "http://localhost:3000",
     "http://127.0.0.1:3000",
+    "*"
+    # Puedes agregar más orígenes aquí
 ]
 app.add_middleware(
     CORSMiddleware,
@@ -62,7 +69,8 @@ v1_router.include_router(carrera.router, prefix="/carreras", tags=["Carreras"])
 v1_router.include_router(alumno.router, prefix="/alumnos", tags=["Alumnos"])
 v1_router.include_router(plan_estudio.router, prefix="/planes_estudio", tags=["Planes_estudio"])
 v1_router.include_router(materias.router, prefix="/materias", tags=["Materias"])
-v1_router.include_router(periodo.router, prefix="/periodos", tags=["Periodos"])  
 v1_router.include_router(modulos.router, prefix="/modulos", tags=["Modulo"])
 v1_router.include_router(plan_estudio_materias.router, tags=["Plan Estudio - Materias"])
+v1_router.include_router(periodo.router, prefix="/periodos", tags=["Periodos"])
+v1_router.include_router(grupo.router, prefix="/grupos", tags=["Grupos"])
 app.include_router(v1_router)

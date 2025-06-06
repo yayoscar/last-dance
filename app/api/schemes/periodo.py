@@ -1,20 +1,24 @@
-from pydantic import BaseModel, ConfigDict
-from typing import Optional
+from __future__ import annotations
+from typing import List, Optional
+from pydantic import BaseModel, ConfigDict, Field
+
+# from app.api.schemes.periodo import PeriodoBase
 
 class PeriodoBase(BaseModel):
-    periodo: str
-    fecha_inicio: str
-    fecha_fin: str
+    nombre: str
 
 class PeriodoCrear(PeriodoBase):
     pass
-
-class PeriodoEditar(BaseModel):
-    periodo: Optional[str] = None
-    fecha_inicio: Optional[str] = None
-    fecha_fin: Optional[str] = None
 
 class PeriodoResponse(PeriodoBase):
     id_periodo: int
 
     model_config = ConfigDict(from_attributes=True)
+    
+class PeriodoEditar(PeriodoBase):
+    id_periodo: int
+
+
+
+    
+    

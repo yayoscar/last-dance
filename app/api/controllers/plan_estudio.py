@@ -38,13 +38,92 @@ def crear_plan_estudio(plan_data: PlanCrear, db: Session = Depends(get_db_sessio
             db.rollback()
             raise HTTPException(status_code=400, detail=str(e))
 
-@router.get("/{id_plan_estudio}/semestres/materias", response_model=Dict[int, List[MateriaPlanResponse]])
-def obtener_materias_por_semestre(
-    id_plan_estudio: int,
-    db: Session = Depends(get_db_session)
-):
-    plan = db.query(PlanEstudio).filter_by(id_plan_estudio=id_plan_estudio).first()
+@router.post("/", response_model=PlanResponse)
+def crear_plan(plan: PlanCrear, db: Session = Depends(get_db_session)):
+    # Verificar que la carrera existe
+    carrera = db.query(Carrera).filter_by(id_carrera=plan.id_carrera).first()
+    if not carrera:
+        raise HTTPException(status_code=404, detail="Carrera no encontrada")
+    
+    db_plan = PlanEstudio(**plan.model_dump())
+    db.add(db_plan)
+    db.commit()
+    db.refresh(db_plan)
+    
+    # Cargar la relación con carrera
+    db_plan_with_carrera = db.query(PlanEstudio).options(
+        joinedload(PlanEstudio.carrera)
+    ).filter_by(id_plan_estudio=db_plan.id_plan_estudio).first()
+    
+    return db_plan_with_carrera
+
+@router.get("/", response_model=List[PlanResponse])
+def obtener_planes(db: Session = Depends(get_db_session)):
+    planes = db.query(PlanEstudio).options(
+        joinedload(PlanEstudio.carrera)
+    ).all()
+    return planes
+
+@router.get("/{id}", response_model=PlanResponse)
+def obtener_plan(id: int, db: Session = Depends(get_db_session)):
+    plan = db.query(PlanEstudio).options(
+        joinedload(PlanEstudio.carrera)
+    ).filter_by(id_plan_estudio=id).first()
+    
     if not plan:
+        raise HTTPException(status_code=404, detail="Plan de estudio no encontrado")
+    
+    return plan
+
+@router.patch("/{id}", response_model=PlanResponse)
+def editar_plan(id: int, plan_data: PlanEditar, db: Session = Depends(get_db_session)):
+    # Verificar que el plan existe
+    db_plan = db.query(PlanEstudio).filter_by(id_plan_estudio=id).first()
+    if not db_plan:
+        raise HTTPException(status_code=404, detail="Plan de estudio no encontrado")
+    
+    # Verificar que la carrera existe
+    carrera = db.query(Carrera).filter_by(id_carrera=plan_data.id_carrera).first()
+    if not carrera:
+        raise HTTPException(status_code=404, detail="Carrera no encontrada")
+    
+    # Actualizar campos
+    db_plan.nombre = plan_data.nombre
+    db_plan.id_carrera = plan_data.id_carrera
+    
+    db.commit()
+    db.refresh(db_plan)
+    
+    # Cargar la relación con carrera
+    db_plan_with_carrera = db.query(PlanEstudio).options(
+        joinedload(PlanEstudio.carrera)
+    ).filter_by(id_plan_estudio=db_plan.id_plan_estudio).first()
+    
+    return db_plan_with_carrera
+
+@router.delete("/{id}")
+def eliminar_plan(id: int, db: Session = Depends(get_db_session)):
+    db_plan = db.query(PlanEstudio).filter_by(id_plan_estudio=id).first()
+    if not db_plan:
+        raise HTTPException(status_code=404, detail="Plan de estudio no encontrado")
+    
+    db.delete(db_plan)
+    db.commit()
+    return {"message": "Plan de estudio eliminado"}
+
+@router.post("/pdf/")
+async def subida_pdf(file: UploadFile = File(...)):
+    return {
+        "filename": file.filename,
+        "content_type": file.content_type,
+        "size": len(await file.read())
+    }
+
+@router.post("/{id_plan_estudio}/agregar-materias")
+def agregar_materias_a_plan(id_plan_estudio: int, data: PlanEstudioMateriaAgregar, db: Session = Depends(get_db_session)):
+    # Verificar existencia del plan
+    plan_estudio = db.query(PlanEstudio).filter_by(id_plan_estudio=id_plan_estudio).first()
+    if not plan_estudio:
         raise HTTPException(status_code=404, detail="Plan de estudio no encontrado")
 
     # Consulta usando el modelo
