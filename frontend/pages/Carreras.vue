@@ -7,7 +7,7 @@
                 <DataTable :value="carreras" stripedRows>
                     <template #header>
                         <div class="flex justify-end">
-                            <Button 
+                            <Button
                                 @click="clickMostrarDialogoCrearCarrera"
                                 label="Agregar Carrera" 
                                 icon="pi pi-plus"
