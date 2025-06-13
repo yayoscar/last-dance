@@ -1,7 +1,7 @@
 # last-dance
 Sistema de Reportes de Calificaciones de Control Escolar SISEEMS
 
-# Crear Correr Primero el Entorno Virtual
+# ScCrear Correr Primero el Entorno Virtual
 python -m venv .venv
 .venv\Scripts\activate
 
