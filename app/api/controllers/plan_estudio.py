@@ -1,11 +1,12 @@
 from typing import Dict, List
-from fastapi import APIRouter, Depends, HTTPException, status, Query
-from sqlalchemy.orm import Session,lazyload 
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status, Query
+from sqlalchemy.orm import Session,lazyload ,joinedload
 from sqlalchemy import select, delete, and_
 from app.database.db import get_db_session
+from app.database.models.carrera import Carrera
 from app.database.models.materia import Materia
 from app.database.models.plan_estudio import PlanEstudio
-from app.api.schemes.plan_estudio import (PlanCrear)
+from app.api.schemes.plan_estudio import (PlanCrear, PlanEditar, PlanResponse)
 from app.database.models.plan_estudio_materia import PlanEstudioMateria  # Ahora es un modelo
 from app.api.schemes.planes_estudio_materias import (
     MateriaAsignacion,

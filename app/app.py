@@ -1,7 +1,7 @@
 from fastapi import APIRouter, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.controllers import carrera, plan_estudio, materias, alumno, periodo, modulos,alumno,plan_estudio_materias 
+from app.api.controllers import carrera, grupo, plan_estudio, materias, alumno, periodo, modulos,alumno,plan_estudio_materias 
 
 
 
@@ -38,17 +38,15 @@ app = FastAPI(
         {
             "name": "Grupos",
             "description": "Operaciones relacionadas con los grupos"
-            "description": "Operaciones relacionadas con los planes de estudio."
         },
-        
-            "name": "Materias",
+        {
+                    "name": "Materias",
             "description": "Operaciones relacionadas con las materias."
         }
     ]
 )
 
 origins = [
-    "*",
     "http://localhost:3000",
     "http://127.0.0.1:3000",
     "*"
