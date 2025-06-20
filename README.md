@@ -15,6 +15,7 @@ renombrarla como .env
 pasar los datos de su BD
 
 # Ejecutar Migraciones
+alembic revision --autogenerate -m "init db"
 alembic upgrade head
 
 # Ejecutar Servidor API
