@@ -18,6 +18,7 @@ pasar los datos de su BD
 alembic upgrade head
 
 # Ejecutar Servidor API
+alembic revision --autogenerate -m "init db"  
 python -m app.main
 
 
