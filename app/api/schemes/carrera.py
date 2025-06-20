@@ -19,6 +19,5 @@ class CarreraEditar(CarreraBase):
     id_carrera: int
 
 
-
     
     
