@@ -20,6 +20,8 @@ def funcion(file):
         nums_control = sheet['B'+str(fila)].value
         if nums_control is None:
             fila=13
+        else:
+            print("No se encontró la tabla dentro del div con ID 'ctl0_Main_panelAlumnos'")
             break
         fila_b['Num_control']=int(nums_control)
         fila+=1
