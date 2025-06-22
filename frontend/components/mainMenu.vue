@@ -88,7 +88,15 @@
               <span class="font-medium">Modulos</span>
             </a>
           </li>
+                <li>
+            <a v-ripple @click="Grupo"
+              class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple">
+              <i class="pi pi-book mr-2"></i>
+              <span class="font-medium">Grupo</span>
+            </a>
+          </li>
           <li>
+            
             <a v-ripple @click="leccion()"
               class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple">
               <i class="pi pi-book mr-2"></i>
@@ -149,6 +157,9 @@ export default {
       ,      
       Modulos() {
         this.$router.push('/Modulo');
+      },
+      Grupo() {
+        this.$router.push('/Grupo');
       }
   },
   components: {

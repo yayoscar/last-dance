@@ -10,4 +10,3 @@ class Periodo(Base):
     nombre: Mapped[str] = mapped_column(String(255), nullable=False)
 
 # Relaciones
-    grupos: Mapped[list["Grupo"]] = relationship("Grupo", back_populates="periodo") #type: ignore
