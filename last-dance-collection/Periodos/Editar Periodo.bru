@@ -1,0 +1,9 @@
+@name = Editar periodo
+PATCH http://localhost:3200/api/v1/periodos/
+Content-Type: application/json
+
+{
+  "periodo": "Febrero - Julio 2025",
+  "fecha_inicio": "2025-02-01",
+  "fecha_fin": "2025-07-31"
+}

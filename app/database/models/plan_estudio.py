@@ -23,3 +23,6 @@ class PlanEstudio(Base):
         back_populates="plan_estudio",
         overlaps="materias"
     )
+
+    alumnos = relationship("Alumno", back_populates="plan_estudio")  # ← esto debe existir
+

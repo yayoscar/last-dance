@@ -20,6 +20,24 @@
               <i class="pi pi-home mr-2"></i>
               <span class="font-medium">Inicio</span>
             </a>
+          </li> 
+           <li> <!-- Periodos -->
+            <NuxtLink to="/periodos"
+              v-ripple
+              class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple">
+              <i class="pi pi-folder mr-2"></i>
+              <span class="font-medium">Periodos</span>
+            </NuxtLink>
+            
+          </li>
+          <li> <!-- Grupos -->
+            <NuxtLink to="/grupo"
+              v-ripple
+              class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple">
+              <i class="pi pi-folder mr-2"></i>
+              <span class="font-medium">Grupos</span>
+            </NuxtLink>
+            
           </li>
           <!-- Cursos -->
           <li>
@@ -39,6 +57,17 @@
             </a>
           </li>
           <!-- Cursos -->
+        <!-- periodo -->
+        <li>
+          <NuxtLink to="/periodos"
+            v-ripple 
+            class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple">
+            <i class="pi pi-calendar mr-2"></i>
+            <span class="font-medium">Periodo</span>
+          </NuxtLink>
+        </li>
+        <!-- periodo -->
+
           <li>
             <a v-ripple
               class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple">
