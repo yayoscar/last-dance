@@ -1,354 +1,450 @@
 <template>
-  <div>
-    <div class="card">
-      <Toolbar class="mb-6">
-        <template #start>
-          <Button label="Nuevo" icon="pi pi-plus" class="mr-2" @click="mostrarDialogoCrearGrupo" />
-          <Button 
-            label="Eliminar" 
-            icon="pi pi-trash" 
-            severity="danger" 
-            outlined 
-            @click="confirmarEliminacionSeleccionados" 
-            :disabled="!gruposSeleccionados || !gruposSeleccionados.length" 
-          />
-        </template>
-      </Toolbar>
+    <div>
+        <Card>
+            <template #title>Grupos</template>
+            
+            <template #content>
+                <DataTable :value="grupos" stripedRows>
+                    <template #header>
+                        <div class="flex justify-end">
+                            <Button 
+                                @click="clickMostrarDialogoCrearGrupo"
+                                label="Agregar Grupo" 
+                                icon="pi pi-plus"
+                            />
+                        </div>
+                    </template>
+                    <Column field="nombre" header="Nombre del Grupo"></Column>
+                    <Column field="turno" header="Turno del Grupo"></Column>
+                    <Column field="tipo" header="Tipo"></Column>
+                    <Column field="periodo.nombre" header="Periodo"></Column>
+                    <Column field="acciones" header="Acciones">
+                        <template #body="slotProps">
+                            <div class="flex gap-2">
+                                <Button 
+                                    icon="pi pi-pencil" 
+                                    severity="info" 
+                                    size="small" 
+                                    @click="clickEditarGrupo(slotProps.data)"
+                                />
+                                <Button 
+                                    icon="pi pi-trash" 
+                                    severity="danger" 
+                                    size="small" 
+                                    @click="clickEliminarGrupo(slotProps.data)"
+                                />
+                            </div>
+                        </template>
+                    </Column>                
+                </DataTable>
+            </template>
+        </Card>
 
-      <DataTable
-        ref="dt"
-        v-model:selection="gruposSeleccionados"
-        :value="grupos"
-        dataKey="id_grupo"
-        :paginator="true"
-        :rows="10"
-        :filters="filtros"
-        paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"
-        :rowsPerPageOptions="[5,10,25]"
-      >
-        <template #header>
-          <div class="flex justify-end">
-            <span class="p-input-icon-left">
-              <i class="pi pi-search" />
-              <InputText v-model="filtros['global'].value" placeholder="Buscar..." />
+        <!-- Dialog Crear/Editar Grupo -->
+        <Dialog 
+            v-model:visible="showDialogCrearGrupo" 
+            modal 
+            :header="modoEdicion ? 'Editar Grupo' : 'Agregar Grupo'" 
+            :style="{ width: '60rem' }"
+        >
+            <span class="text-surface-500 dark:text-surface-400 block mb-4">
+                {{ modoEdicion ? 'Edita la información del grupo.' : 'Agrega información del grupo.' }}
             </span>
-          </div>
-        </template>
+            
+            <form @submit.prevent="submitGrupo">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Nombre del Grupo -->
+                    <div class="field">
+                        <label class="font-semibold" for="nombre">Nombre del Grupo *</label>
+                        <div class="flex flex-col gap-2 mt-1">
+                            <InputText 
+                                id="nombre"
+                                v-model="modelGrupo.nombre"
+                                class="w-full" 
+                                autocomplete="off"
+                                :class="{ 'p-invalid': $v.nombre.$error }"
+                                @blur="$v.nombre.$touch"
+                            />
+                            <small 
+                                v-if="$v.nombre.$error" 
+                                class="p-error"
+                            >
+                                {{ $v.nombre.$errors[0].$message }}
+                            </small>
+                        </div>
+                    </div>
+                    <!-- Tipos -->
+                    <div class="field">
+                        <label class="font-semibold" for="tipo">Tipo *</label>
+                        <div class="flex flex-col gap-2 mt-1">
+                            <Dropdown
+                                id="tipo"
+                                v-model="modelGrupo.tipo"
+                                :options="grupos"
+                                optionLabel="tipo"
+                                placeholder="Selecciona un tipo"
+                                class="w-full"
+                                :class="{ 'p-invalid': $v.tipo.$error }"
+                                @blur="$v.tipo.$touch"
+                            />
+                            <small 
+                                v-if="$v.tipo.$error" 
+                                class="p-error"
+                            >
+                                {{ $v.tipo.$errors[0].$message }}
+                            </small>
+                        </div>
+                    </div>
+                    <!-- Turno del Grupo -->
+                    <div class="field">
+                        <label class="font-semibold" for="turno">Turno del Grupo *</label>
+                        <div class="flex flex-col gap-2 mt-1">
+                            <Dropdown
+                                id="turno"
+                                v-model="modelGrupo.turno"
+                                :options="grupos"
+                                optionLabel="turno"
+                                placeholder="Selecciona un turno"
+                                class="w-full"
+                                :class="{ 'p-invalid': $v.turno.$error }"
+                                @blur="$v.turno.$touch"
+                            />
+                            <small 
+                                v-if="$v.turno.$error" 
+                                class="p-error"
+                            >
+                                {{ $v.turno.$errors[0].$message }}
+                            </small>
+                        </div>
+                    </div>
 
-        <Column selectionMode="multiple" style="width: 3rem" :exportable="false" />
-        <Column field="id_grupo" header="ID" sortable style="min-width: 8rem" />
-        <Column field="nombre" header="Nombre" sortable style="min-width: 16rem" />
-        <Column field="tipo" header="Tipo" sortable style="min-width: 12rem" />
-        <Column field="turno" header="Turno" sortable style="min-width: 12rem" />
-        <Column header="Acciones" style="min-width: 8rem">
-          <template #body="slotProps">
-            <Button icon="pi pi-pencil" rounded text @click="editarGrupo(slotProps.data)" />
-          <Button 
-      icon="pi pi-file-excel" 
-      rounded 
-      text 
-      @click="descargarPlantilla(slotProps.data.id_grupo)"
-      severity="info"
-      v-tooltip.top="'Descargar plantilla de calificaciones'"
-    />
-        </template>
-        </Column>
-      </DataTable>
+                    <!-- Periodos -->
+                    <div class="field">
+                        <label class="font-semibold" for="periodo">Periodo *</label>
+                        <div class="flex flex-col gap-2 mt-1">
+                            <Dropdown
+                                id="periodo"
+                                v-model="modelGrupo.id_periodo"
+                                :options="periodos"
+                                optionLabel="nombre"
+                                optionValue="id_periodo"
+                                placeholder="Selecciona un periodo"
+                                class="w-full"
+                                :class="{ 'p-invalid': $v.id_periodo.$error }"
+                                @blur="$v.id_periodo.$touch"
+                            />
+                            <small 
+                                v-if="$v.id_periodo.$error" 
+                                class="p-error"
+                            >
+                                {{ $v.id_periodo.$errors[0].$message }}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex justify-end gap-2 mt-6">
+                    <Button 
+                        type="button" 
+                        label="Cancelar" 
+                        severity="secondary" 
+                        @click="cancelarDialog"
+                    />
+                    <Button 
+                        type="submit" 
+                        :label="modoEdicion ? 'Actualizar' : 'Agregar'" 
+                        severity="primary"
+                        :loading="loading"
+                    />
+                </div>
+            </form>
+        </Dialog>
+
+        <!-- Dialog Confirmar Eliminación -->
+        <Dialog 
+            v-model:visible="showDialogEliminar" 
+            modal 
+            header="Confirmar Eliminación" 
+            :style="{ width: '30rem' }"
+        >
+            <div class="flex items-center gap-4">
+                <i class="pi pi-exclamation-triangle text-orange-500" style="font-size: 2rem"></i>
+                <span>
+                    ¿Estás seguro de que quieres eliminar el Grupo
+                    <strong>{{ grupoAEliminar?.nombre }}</strong> 
+                     <strong>{{ grupoAEliminar?.periodo?.nombre }}</strong>?
+                </span>
+            </div>
+            
+            <div class="flex justify-end gap-2 mt-4">
+                <Button 
+                    type="button" 
+                    label="Cancelar" 
+                    severity="secondary" 
+                    @click="showDialogEliminar = false"
+                />
+                <Button 
+                    type="button" 
+                    label="Eliminar" 
+                    severity="danger"
+                    :loading="loading"
+                    @click="confirmarEliminarGrupo"
+                />
+            </div>
+        </Dialog>
+
+        <!-- Toast para notificaciones -->
+        <Toast />
     </div>
-
-    <!-- Diálogo de nuevo/editar grupo -->
-    <Dialog 
-      v-model:visible="mostrarDialogoGrupo" 
-      :style="{ width: '450px' }" 
-      :header="modoEdicion ? 'Editar Grupo' : 'Nuevo Grupo'" 
-      :modal="true" 
-      class="p-fluid"
-    >
-      <div class="p-4 space-y-4">
-        <div>
-          <label for="nombre" class="block font-semibold mb-1">Nombre*</label>
-          <InputText 
-            id="nombre" 
-            v-model.trim="modeloGrupo.nombre" 
-            required 
-            autofocus 
-            class="w-full" 
-            :class="{ 'p-invalid': enviado && !modeloGrupo.nombre }"
-          />
-          <small class="p-error" v-if="enviado && !modeloGrupo.nombre">
-            El nombre es obligatorio
-          </small>
-        </div>
-        
-        <div>
-          <label for="tipo" class="block font-semibold mb-1">Tipo*</label>
-          <Dropdown 
-            id="tipo"
-            v-model="modeloGrupo.tipo" 
-            :options="tiposGrupo"
-            optionLabel="label"
-            optionValue="value"
-            placeholder="Selecciona un tipo"
-            class="w-full"
-            :class="{ 'p-invalid': enviado && !modeloGrupo.tipo }"
-          />
-          <small class="p-error" v-if="enviado && !modeloGrupo.tipo">
-            Debe seleccionar un tipo
-          </small>
-        </div>
-        
-        <div>
-          <label for="turno" class="block font-semibold mb-1">Turno*</label>
-          <Dropdown 
-            id="turno"
-            v-model="modeloGrupo.turno" 
-            :options="turnos"
-            optionLabel="label"
-            optionValue="value"
-            placeholder="Selecciona un turno"
-            class="w-full"
-            :class="{ 'p-invalid': enviado && !modeloGrupo.turno }"
-          />
-          <small class="p-error" v-if="enviado && !modeloGrupo.turno">
-            Debe seleccionar un turno
-          </small>
-        </div>
-      </div>
-      
-      <template #footer>
-        <Button label="Cancelar" icon="pi pi-times" text @click="ocultarDialogo" />
-        <Button 
-          label="Guardar" 
-          icon="pi pi-check" 
-          @click="modoEdicion ? actualizarGrupo() : crearGrupo()" 
-        />
-      </template>
-    </Dialog>
-
-    <!-- Diálogo de confirmación para eliminar -->
-    <Dialog 
-      v-model:visible="mostrarDialogoConfirmacionEliminar" 
-      :style="{ width: '450px' }" 
-      header="Confirmar" 
-      :modal="true"
-    >
-      <div class="flex items-center gap-4">
-        <i class="pi pi-exclamation-triangle !text-3xl" />
-        <span>¿Estás seguro de que deseas eliminar los grupos seleccionados?</span>
-      </div>
-      <template #footer>
-        <Button label="No" icon="pi pi-times" text @click="mostrarDialogoConfirmacionEliminar = false" />
-        <Button label="Sí" icon="pi pi-check" @click="eliminarGruposSeleccionados" />
-      </template>
-    </Dialog>
-    
-    <Toast />
-  </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
-import axiosInstance from "~/utils/axiosConfig";
-import { useToast } from 'primevue/usetoast';
+import { useVuelidate } from '@vuelidate/core'
+import { required, minLength } from '@vuelidate/validators'
+import { useToast } from 'primevue/usetoast'
+import type { Periodo } from '~/features/periodos/models/periodo-model'
+import type { Grupo, GrupoCreate, GrupoUpdate } from '~/features/grupos/models/grupo-mode'
+import axiosInstance from "~/utils/axiosConfig"
 
-const toast = useToast();
+// Composables
+const toast = useToast()
 
-interface Grupo {
-  id_grupo?: number;
-  nombre: string;
-  tipo: string;
-  turno: string;
+// Estados reactivos
+const grupos = ref<Grupo[]>([])
+const periodos = ref<Periodo[]>([])
+const loading = ref(false)
+
+// Dialog states
+const showDialogCrearGrupo = ref(false)
+const showDialogEliminar = ref(false)
+const modoEdicion = ref(false)
+const grupoAEliminar = ref<Grupo | null>(null)
+
+// Modelo del formulario
+const modelGrupo = ref<GrupoCreate | (GrupoUpdate & { id_grupo?: number })>({
+    nombre: "",
+    turno: "",
+    tipo: "",
+    id_periodo: null as any
+})
+
+// Reglas de validación
+const rules = {
+    nombre: {
+        required: required,
+        minLength: minLength(3)
+    },
+    turno: {
+        required: required,
+        minLength: minLength(3)
+    },
+    tipo: {
+        required: required,
+        minLength: minLength(3)
+    },
+    id_periodo: {
+        required: required,   
+    }
+
 }
 
-interface OpcionDropdown {
-  label: string;
-  value: string;
-}
+// Vuelidate
+const $v = useVuelidate(rules, modelGrupo)
 
-// Variables reactivas
-const grupos = ref<Grupo[]>([]);
-const gruposSeleccionados = ref<Grupo[]>([]);
-const filtros = ref({
-  global: { value: null, matchMode: 'contains' }
-});
-const mostrarDialogoGrupo = ref(false);
-const mostrarDialogoConfirmacionEliminar = ref(false);
-const modoEdicion = ref(false);
-const enviado = ref(false);
-
-const modeloGrupo = ref<Grupo>({ 
-  nombre: "", 
-  tipo: "", 
-  turno: ""
-});
-
-const tiposGrupo = ref<OpcionDropdown[]>([
-  { label: 'Regular', value: 'Regular' },
-  { label: 'Especial', value: 'Especial' },
-  { label: 'Intensivo', value: 'Intensivo' }
-]);
-
-const turnos = ref<OpcionDropdown[]>([
-  { label: 'Matutino', value: 'Matutino' },
-  { label: 'Vespertino', value: 'Vespertino' },
-  { label: 'Nocturno', value: 'Nocturno' }
-]);
-
-// Cargar datos al montar el componente
-onMounted(async () => {
-  await cargarGrupos();
-});
-
+// Métodos
 const cargarGrupos = async () => {
-  try {
-    const response = await axiosInstance.get("grupos");
-    grupos.value = response.data;
-  } catch (error) {
-    mostrarError('Error al cargar los grupos');
-    console.error("Error cargando grupos:", error);
-  }
-};
+    try {
+        loading.value = true
+        const response = await axiosInstance.get<Grupo[]>("grupos")
+        grupos.value = response.data
+    } catch (error) {
+        console.error("Error al obtener grupos:", error)
+        toast.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Error al cargar los grupos',
+            life: 3000
+        })
+    } finally {
+        loading.value = false
+    }
+}
 
-const mostrarDialogoCrearGrupo = () => {
-  modoEdicion.value = false;
-  modeloGrupo.value = { nombre: "", tipo: "", turno: "" };
-  enviado.value = false;
-  mostrarDialogoGrupo.value = true;
-};
+const cargarPeriodos = async () => {
+    try {
+        const response = await axiosInstance.get<Periodo[]>("periodos")
+        periodos.value = response.data
+    } catch (error) {
+        console.error("Error al obtener periodos:", error)
+        toast.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Error al cargar los periodos',
+            life: 3000
+        })
+    }
+}
 
-const ocultarDialogo = () => {
-  mostrarDialogoGrupo.value = false;
-  enviado.value = false;
-};
+const clickMostrarDialogoCrearGrupo = () => {
+    modoEdicion.value = false
+    modelGrupo.value = { 
+        nombre: "", 
+        turno: "",
+        tipo: "",
+        id_periodo: null as any 
+    }
+    $v.value.$reset()
+    showDialogCrearGrupo.value = true
+}
 
-const validarFormulario = (): boolean => {
-  enviado.value = true;
-  
-  if (!modeloGrupo.value.nombre.trim()) return false;
-  if (!modeloGrupo.value.tipo) return false;
-  if (!modeloGrupo.value.turno) return false;
-  
-  return true;
-};
+const clickEditarGrupo = (grupo: Grupo) => {
+    modoEdicion.value = true
+    modelGrupo.value = { 
+        ...grupo,
+        id_grupo: grupo.id_grupo
+    }
+    $v.value.$reset()
+    showDialogCrearGrupo.value = true
+}
 
-const crearGrupo = async () => {
-  if (!validarFormulario()) return;
+const clickEliminarGrupo = (grupo: Grupo) => {
+    grupoAEliminar.value = grupo
+    showDialogEliminar.value = true
+}
 
-  try {
-    const response = await axiosInstance.post("grupos", modeloGrupo.value);
-    grupos.value.push(response.data);
-    mostrarDialogoGrupo.value = false;
-    mostrarExito('Grupo creado correctamente');
-    await cargarGrupos();
-  } catch (error: any) {
-    console.error("Error:", error);
-    mostrarError(error.response?.data?.detail || "Error al crear el grupo");
-  }
-};
+const submitGrupo = async () => {
+    // Validar formulario
+    const isValid = await $v.value.$validate()
+    if (!isValid) {
+        return
+    }
 
-const editarGrupo = (grupo: Grupo) => {
-  modoEdicion.value = true;
-  modeloGrupo.value = { ...grupo };
-  enviado.value = false;
-  mostrarDialogoGrupo.value = true;
-};
+    try {
+        loading.value = true
+        
+        if (modoEdicion.value) {
+            // Editar grupo existente
+            const grupoUpdate = modelGrupo.value as GrupoUpdate & { id_grupo: number }
+            const response = await axiosInstance.patch<Grupo>(
+                `grupos/${grupoUpdate.id_grupo}`, 
+                {
+                    nombre: grupoUpdate.nombre,
+                    turno: grupoUpdate.turno,
+                    tipo: grupoUpdate.tipo,
+                    id_periodo: grupoUpdate.id_periodo
+                }
+            )
+            
+            // Actualizar el grupo en la lista
+            const index = grupos.value.findIndex(p => p.id_grupo === grupoUpdate.id_grupo)
+            if (index !== -1) {
+                grupos.value[index] = response.data
+            }
+            
+            toast.add({
+                severity: 'success',
+                summary: 'Éxito',
+                detail: 'Grupo actualizado exitosamente',
+                life: 3000
+            })
+        } else {
+            // Crear nuevo grupo
+            const grupoCreate = modelGrupo.value as GrupoCreate
+            const response = await axiosInstance.post<Grupo>("grupos", grupoCreate)
+            
+            // Agregar el nuevo grupo a la lista
+            grupos.value.push(response.data)
+            
+            toast.add({
+                severity: 'success',
+                summary: 'Éxito',
+                detail: 'Grupo agregado exitosamente',
+                life: 3000
+            })
+        }
+        
+        showDialogCrearGrupo.value = false
+        
+    } catch (error: any) {
+        console.error("Error al guardar el grupo:", error)
+        toast.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: error.response?.data?.detail || 'Error al guardar el grupo',
+            life: 3000
+        })
+    } finally {
+        loading.value = false
+    }
+}
 
-const actualizarGrupo = async () => {
-  if (!validarFormulario() || !modeloGrupo.value.id_grupo) return;
+const confirmarEliminarGrupo = async () => {
+    if (!grupoAEliminar.value) return
 
-  try {
-    await axiosInstance.put(`grupos/${modeloGrupo.value.id_grupo}`, modeloGrupo.value);
-    mostrarDialogoGrupo.value = false;
-    mostrarExito('Grupo actualizado correctamente');
-    await cargarGrupos();
-  } catch (error: any) {
-    console.error("Error:", error);
-    mostrarError(error.response?.data?.detail || "Error al actualizar el grupo");
-  }
-};
+    try {
+        loading.value = true
+        
+        await axiosInstance.delete(`grupos/${grupoAEliminar.value.id_grupo}`)
+        
+        // Remover el grupo de la lista
+        grupos.value = grupos.value.filter(
+            p => p.id_grupo !== grupoAEliminar.value?.id_grupo
+        )
+        
+        toast.add({
+            severity: 'success',
+            summary: 'Éxito',
+            detail: 'Grupo eliminado exitosamente',
+            life: 3000
+        })
+        
+        showDialogEliminar.value = false
+        grupoAEliminar.value = null
+        
+    } catch (error: any) {
+        console.error("Error al eliminar el grupo:", error)
+        toast.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: error.response?.data?.detail || 'Error al eliminar el grupo',
+            life: 3000
+        })
+    } finally {
+        loading.value = false
+    }
+}
 
-const confirmarEliminacionSeleccionados = () => {
-  if (gruposSeleccionados.value.length > 0) {
-    mostrarDialogoConfirmacionEliminar.value = true;
-  }
-};
+const cancelarDialog = () => {
+    showDialogCrearGrupo.value = false
+    $v.value.$reset()
+    modelGrupo.value = { 
+        nombre: "", 
+        turno: "",
+        tipo: "",
+        id_periodo: null as any 
+    }
+}
 
-const eliminarGruposSeleccionados = async () => {
-  try {
-    const ids = gruposSeleccionados.value.map((grupo) => grupo.id_grupo);
-    await axiosInstance.delete("grupos", { data: { ids } });
-    grupos.value = grupos.value.filter((grupo) => !ids.includes(grupo.id_grupo));
-    gruposSeleccionados.value = [];
-    mostrarDialogoConfirmacionEliminar.value = false;
-    mostrarExito('Grupos eliminados correctamente');
-  } catch (error) {
-    mostrarError('Error al eliminar grupos');
-    console.error("Error eliminando grupos:", error);
-  }
-};
-
-const mostrarExito = (mensaje: string) => {
-  toast.add({ severity: 'success', summary: 'Éxito', detail: mensaje, life: 3000 });
-};
-
-const mostrarError = (mensaje: string) => {
-  toast.add({ severity: 'error', summary: 'Error', detail: mensaje, life: 3000 });
-};
-const descargarPlantilla = async (idGrupo: number) => {
-  try {
-    const response = await axiosInstance.get(
-      `grupos/${idGrupo}/plantilla-calificaciones`,
-      { responseType: 'blob' }
-    );
-    
-    // Crear enlace de descarga
-    const url = window.URL.createObjectURL(new Blob([response.data]));
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', `Plantilla_Calificaciones_${idGrupo}.xlsx`);
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-
-    // Mostrar notificación
-    toast.add({
-      severity: 'success',
-      summary: 'Descarga exitosa',
-      detail: 'Plantilla generada correctamente',
-      life: 3000
-    });
-  } catch (error) {
-    toast.add({
-      severity: 'error',
-      summary: 'Error',
-      detail: 'No se pudo generar la plantilla',
-      life: 3000
-    });
-    console.error("Error descargando plantilla:", error);
-  }
-};
+// Lifecycle
+onMounted(async () => {
+    await Promise.all([
+        cargarGrupos(),
+        cargarPeriodos()
+    ])
+})
 </script>
 
-<style scoped lang="css">
-.card {
-  padding: 1.5rem;
-  border-radius: 0.5rem;
-  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-  background-color: white;
-}
-
-.p-toolbar {
-  background: transparent !important;
-  border: none !important;
-  padding: 0 !important;
+<style scoped>
+.field {
+    margin-bottom: 1rem;
 }
 
 .p-invalid {
-  border-color: #e24c4c;
+    border-color: #e24c4c;
 }
 
 .p-error {
-  color: #e24c4c;
-  font-size: 0.875rem;
+    color: #e24c4c;
+    font-size: 0.875rem;
 }
 </style>
