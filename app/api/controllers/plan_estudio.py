@@ -5,7 +5,6 @@ from sqlalchemy import select, delete, and_
 from app.database.db import get_db_session
 from app.database.models.materia import Materia
 from app.database.models.plan_estudio import PlanEstudio
-from app.api.schemes.plan_estudio import (PlanCrear)
 from app.database.models.plan_estudio_materia import PlanEstudioMateria  # Ahora es un modelo
 from app.api.schemes.planes_estudio_materias import (
     MateriaAsignacion,
@@ -15,6 +14,7 @@ from app.api.schemes.planes_estudio_materias import (
 )
 
 router = APIRouter()
+
 @router.get("/", response_model=List[PlanEstudioConMateriasResponse])
 def listar_planes_estudio(db: Session = Depends(get_db_session)):
     try:
@@ -24,23 +24,6 @@ def listar_planes_estudio(db: Session = Depends(get_db_session)):
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=str(e))
-# Asegúrate que tus rutas estén consistentes con o sin barra final
-@router.post("/{id_plan_estudio}/materias", status_code=status.HTTP_201_CREATED)
-def asignar_materia_a_semestre(
-    id_plan_estudio: int,
-    data: MateriaAsignacion,
-    db: Session = Depends(get_db_session)
-):
-    async def crear_plan_estudio(plan_data: PlanCrear, db: Session = Depends(get_db_session)):
-        try:
-            nuevo_plan = PlanEstudio(**plan_data.dict())
-            db.add(nuevo_plan)
-            db.commit()
-            db.refresh(nuevo_plan)
-            return nuevo_plan
-        except Exception as e:
-            db.rollback()
-            raise HTTPException(status_code=400, detail=str(e))
 
 @router.get("/{id_plan_estudio}/semestres/materias", response_model=Dict[int, List[MateriaPlanResponse]])
 def obtener_materias_por_semestre(

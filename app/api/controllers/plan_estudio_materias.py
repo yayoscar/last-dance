@@ -1,10 +1,13 @@
 from typing import Dict, List
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, HTTPException, status, Query,Response
 from sqlalchemy.orm import Session
-from sqlalchemy import select, delete, and_
+from sqlalchemy import select, delete, and_,text
 from app.database.db import get_db_session
 from app.database.models.materia import Materia
 from app.database.models.plan_estudio import PlanEstudio
+from fastapi.responses import StreamingResponse
+import io
+import pandas as pd
 from app.database.models.plan_estudio_materia import PlanEstudioMateria  # Ahora es un modelo
 from app.api.schemes.planes_estudio_materias import (
     MateriaAsignacion,
@@ -12,9 +15,28 @@ from app.api.schemes.planes_estudio_materias import (
     MateriaPlanResponse,
     PlanEstudioConMateriasResponse
 )
+from app.api.schemes.plan_estudio import (
+    PlanResponse,
+    PlanCrear
+)
 
 router = APIRouter()
 
+@router.post("/planes_estudio/", status_code=status.HTTP_201_CREATED, response_model=PlanResponse)
+def crear_plan_estudio(
+    plan_data: PlanCrear,
+    db: Session = Depends(get_db_session)
+):
+    try:
+        nuevo_plan = PlanEstudio(**plan_data.dict())
+        db.add(nuevo_plan)
+        db.commit()
+        db.refresh(nuevo_plan)
+        return nuevo_plan
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=400, detail=str(e))
+    
 @router.get("/planes_estudio/{id_plan_estudio}/semestres/materias", response_model=Dict[int, List[MateriaPlanResponse]])
 def obtener_materias_por_semestre(
     id_plan_estudio: int,
@@ -44,7 +66,7 @@ def obtener_materias_por_semestre(
 
     return materias_por_semestre
 
-@router.post("planes_estudio/{id_plan_estudio}/materias", status_code=status.HTTP_201_CREATED)
+@router.post("/planes_estudio/{id_plan_estudio}/materias", status_code=status.HTTP_201_CREATED)
 def asignar_materia_a_semestre(
     id_plan_estudio: int,
     data: MateriaAsignacion,
@@ -100,3 +122,68 @@ def desasignar_materia(
     db.commit()
 
     return None
+
+@router.get("/planes_estudio/{id_plan_estudio}/reporte-calificaciones")
+def generar_reporte_calificaciones(
+    id_plan_estudio: int,
+    db: Session = Depends(get_db_session)
+):
+    try:
+        # 1. Verificar si el plan existe
+        plan = db.query(PlanEstudio).filter(PlanEstudio.id_plan_estudio == id_plan_estudio).first()
+        if not plan:
+            return Response(
+                content="Plan de estudio no encontrado",
+                status_code=404
+            )
+
+        # 2. Consulta modificada para ser más tolerante
+        query = text("""
+        SELECT 
+            a.nombre as alumno,
+            m.nombre as materia,
+            pe.semestre,
+            COALESCE(c.parcial_1, 0) as parcial_1,
+            COALESCE(c.parcial_2, 0) as parcial_2,
+            COALESCE(c.parcial_3, 0) as parcial_3,
+            COALESCE(c.final, c.parcial_final, 0) as final
+        FROM alumnos a
+        JOIN calificaciones c ON a.id_alumno = c.id_alumno
+        JOIN materias m ON c.id_materia = m.id_materia
+        JOIN plan_estudio_materia pe ON m.id_materia = pe.id_materia
+        WHERE pe.id_plan_estudio = :id_plan
+        ORDER BY pe.semestre, m.nombre, a.nombre
+        """)
+
+        result = db.execute(query, {"id_plan": id_plan_estudio})
+        rows = result.mappings().all()
+
+        if not rows:
+            return Response(
+                content="No hay calificaciones registradas para este plan",
+                status_code=404
+            )
+
+        # 3. Crear DataFrame
+        df = pd.DataFrame(rows)
+
+        # 4. Generar Excel
+        output = io.BytesIO()
+        with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+            df.to_excel(writer, sheet_name='Calificaciones', index=False)
+        
+        output.seek(0)
+
+        # 5. Retornar archivo
+        return Response(
+            content=output.getvalue(),
+            media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            headers={"Content-Disposition": f"attachment; filename=calificaciones_plan_{id_plan_estudio}.xlsx"}
+        )
+
+    except Exception as e:
+        print(f"ERROR: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error al generar reporte: {str(e)}"
+        )
